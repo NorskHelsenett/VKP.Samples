@@ -1,10 +1,12 @@
-﻿using IdentityModel;
+﻿using Hl7.Fhir.Model;
+using Hl7.Fhir.Serialization;
+using IdentityModel;
 using IdentityModel.Client;
 using Microsoft.IdentityModel.Tokens;
+using OneOf;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Net.Http.Headers;
-using Hl7.Fhir.Model;
-using Hl7.Fhir.Serialization;
 using Claim = System.Security.Claims.Claim;
 
 namespace PatientSearch
@@ -21,7 +23,7 @@ namespace PatientSearch
         private int _tokenExpirationSkew = 30;
 
         private DiscoveryDocumentResponse? _disco;
-        
+
         /// <summary>
         /// Creates an instance of the client.
         /// </summary>
@@ -33,7 +35,7 @@ namespace PatientSearch
             _httpClient = httpClient;
         }
 
-        public async Task<string> PatientSearchAsync(string orgNo, string? identifier = null)
+        public async Task<OneOf<Bundle, OperationOutcome>> PatientSearchAsync(string orgNo, string? identifier = null)
         {
             // 1. Get token.
             var token = await GetBearerTokenAsync();
@@ -43,31 +45,29 @@ namespace PatientSearch
             // 3. Add bearer token acquired previously.
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             // 4. Specify required service codes.
-            httpRequest.Headers.Add("ServiceCodes","rt");
+            httpRequest.Headers.Add("ServiceCodes", "rt");
             // 5. (Optional) Specify patient
             if (identifier != null)
             {
                 httpRequest.Content = new FormUrlEncodedContent(new[]
                 {
-                    new KeyValuePair<string, string>("identifier", "1311690021")
+                    new KeyValuePair<string, string>("identifier", identifier)
                 });
             }
 
             var response = await _httpClient.SendAsync(httpRequest);
-
             var json = await response.Content.ReadAsStringAsync();
             var parser = new FhirJsonParser();
 
-            //var operationOutcome = parser.Parse(json);
-
-            response.EnsureSuccessStatusCode();
-
-
-            
-            
-            var bundle = parser.Parse<Bundle>(json);
-
-            return null;
+            // Evaluate the response
+            switch (response)
+            {
+                case { StatusCode: HttpStatusCode.BadRequest }:
+                    return parser.Parse<OperationOutcome>(json);
+                default:
+                    response.EnsureSuccessStatusCode();
+                    return parser.Parse<Bundle>(json);
+            }
         }
 
         private async Task<DiscoveryDocumentResponse> GetDiscoveryDocumentAsync()

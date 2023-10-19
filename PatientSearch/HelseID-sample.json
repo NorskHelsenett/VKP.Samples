@@ -1,0 +1,17 @@
+{
+  "clientName": "NORSK HELSENETT SF - VKP-TestVFT",
+  "authority": "https://helseid-sts.test.nhn.no",
+  "clientId": "...",
+  "grantTypes": [
+    "client_credentials"
+  ],
+  "scopes": [
+    "nhn:vkp/api/user/composition.write",
+    "nhn:vkp/api/user/composition.read",
+    "nhn:vkp/api/user/*.*"
+  ],
+  "secretType": "private_key_jwt:RsaPrivateKeyJwtSecret",
+  "rsaPrivateKey": "...",
+  "rsaKeySizeBits": 4096,
+  "privateJwk": "..."
+}
