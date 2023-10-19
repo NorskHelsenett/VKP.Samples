@@ -11,7 +11,8 @@ if (helseIdConfiguration == null)
 }
 
 var httpClient = new HttpClient();
-var client = new VkpClient(helseIdConfiguration, httpClient);
+var helseIdService = new HelseIdService(helseIdConfiguration, httpClient);
+var client = new VkpClient(helseIdService, httpClient);
 
 var result = await client.PatientSearchAsync("888134576", "13116900216");
 

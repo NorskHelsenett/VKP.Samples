@@ -1,4 +1,7 @@
-﻿# PatientSearch sample
+﻿##### Disclaimer
+*This sample is a work in progress and might become updated without notice.*
+
+# PatientSearch sample
 This sample shows how to perform a patient search using the VKP API. 
 
 ## Dependencies

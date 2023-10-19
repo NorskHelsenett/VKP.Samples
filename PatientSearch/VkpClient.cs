@@ -1,13 +1,8 @@
 ﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
-using IdentityModel;
-using IdentityModel.Client;
-using Microsoft.IdentityModel.Tokens;
 using OneOf;
-using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http.Headers;
-using Claim = System.Security.Claims.Claim;
 
 namespace PatientSearch
 {
@@ -16,29 +11,25 @@ namespace PatientSearch
     /// </summary>
     internal class VkpClient
     {
-        private readonly HelseIdConfiguration _configuration;
+        private readonly HelseIdService _helseIdService;
         private readonly HttpClient _httpClient;
-        private DateTime? _persistedAccessTokenExpiresAt;
-        private string? _persistedAccessToken;
-        private int _tokenExpirationSkew = 30;
 
-        private DiscoveryDocumentResponse? _disco;
 
         /// <summary>
-        /// Creates an instance of the client.
+        /// Creates an instance of the VkpClient class.
         /// </summary>
-        /// <param name="configuration">Configuration parameters.</param>
+        /// <param name="helseIdService">The HelseID service used for acquiring tokens.</param>
         /// <param name="httpClient">The HttpClient used for communication.</param>
-        public VkpClient(HelseIdConfiguration configuration, HttpClient httpClient)
+        public VkpClient(HelseIdService helseIdService, HttpClient httpClient)
         {
-            _configuration = configuration;
+            _helseIdService = helseIdService;
             _httpClient = httpClient;
         }
 
         public async Task<OneOf<Bundle, OperationOutcome>> PatientSearchAsync(string orgNo, string? identifier = null)
         {
             // 1. Get token.
-            var token = await GetBearerTokenAsync();
+            var token = await _helseIdService.GetBearerTokenAsync();
 
             // 2. Setup call to patient search.
             var httpRequest = new HttpRequestMessage(HttpMethod.Post, $"https://api.test.vkpnorge.no/epj/r4/{orgNo}/patient/_search");
@@ -68,77 +59,6 @@ namespace PatientSearch
                     response.EnsureSuccessStatusCode();
                     return parser.Parse<Bundle>(json);
             }
-        }
-
-        private async Task<DiscoveryDocumentResponse> GetDiscoveryDocumentAsync()
-        {
-            var disco = await _httpClient.GetDiscoveryDocumentAsync(_configuration.Authority);
-            if (disco.IsError)
-            {
-                throw new Exception(disco.Error);
-            }
-
-            return _disco = disco;
-        }
-
-        private async Task<string> GetBearerTokenAsync()
-        {
-            if (DateTime.UtcNow < _persistedAccessTokenExpiresAt)
-            {
-                return _persistedAccessToken!;
-            }
-
-            var disco = _disco ?? await GetDiscoveryDocumentAsync();
-
-            var response = await _httpClient.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
-            {
-                Address = disco.TokenEndpoint,
-                ClientId = _configuration.ClientId,
-                GrantType = OidcConstants.GrantTypes.ClientCredentials,
-                Scope = string.Join(" ", _configuration.Scopes),
-                ClientAssertion = new ClientAssertion
-                {
-                    Type = OidcConstants.ClientAssertionTypes.JwtBearer,
-                    Value = BuildClientAssertion(disco, _configuration.ClientId, _configuration.PrivateJwk)
-                },
-                ClientCredentialStyle = ClientCredentialStyle.PostBody
-            });
-
-            if (response.IsError)
-            {
-                throw new Exception(response.Error);
-            }
-
-            _persistedAccessToken = response.AccessToken;
-            _persistedAccessTokenExpiresAt = DateTime.UtcNow.AddSeconds(response.ExpiresIn - _tokenExpirationSkew);
-
-            return response.AccessToken ?? throw new Exception("Access token is missing.");
-        }
-
-        private static string BuildClientAssertion(DiscoveryDocumentResponse disco, string clientId, string jwkPrivateKey)
-        {
-            var claims = new List<Claim>
-            {
-                new Claim(JwtClaimTypes.Subject, clientId),
-                new Claim(JwtClaimTypes.IssuedAt, DateTimeOffset.Now.ToUnixTimeSeconds().ToString()),
-                new Claim(JwtClaimTypes.JwtId, Guid.NewGuid().ToString("N")),
-            };
-            var credentials = new JwtSecurityToken(
-                clientId,
-                disco.TokenEndpoint,
-                claims,
-                DateTime.UtcNow,
-                DateTime.UtcNow.AddSeconds(60),
-                GetClientAssertionSigningCredentials(jwkPrivateKey));
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            return tokenHandler.WriteToken(credentials);
-        }
-
-        private static SigningCredentials GetClientAssertionSigningCredentials(string jwkPrivateKey)
-        {
-            var securityKey = new JsonWebKey(jwkPrivateKey);
-            return new SigningCredentials(securityKey, SecurityAlgorithms.RsaSha256);
         }
     }
 }
