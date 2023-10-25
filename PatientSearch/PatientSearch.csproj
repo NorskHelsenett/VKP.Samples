@@ -15,9 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="HelseID-sample.json">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
     <None Update="HelseID.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

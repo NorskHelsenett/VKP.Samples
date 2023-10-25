@@ -1,7 +1,8 @@
 ﻿using PatientSearch;
 
 // Read HelseID configuration from file.
-// An example file is included. Only the privateJwk and authority is used.
+// This is configuration for TEST environment only,
+// keys for production environment should not be checked into source control!
 var helseIdConfiguration = HelseIdConfiguration.ReadFromFile("HelseID.json");
 
 if (helseIdConfiguration == null)

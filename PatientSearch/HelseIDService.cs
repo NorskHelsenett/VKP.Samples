@@ -11,19 +11,20 @@ namespace PatientSearch
     /// </summary>
     internal class HelseIdService
     {
+        private const int TokenExpirationSkew = 30;
+
         private readonly HelseIdConfiguration _configuration;
         private readonly HttpClient _httpClient;
+
         private DateTime? _persistedAccessTokenExpiresAt;
         private string? _persistedAccessToken;
-        private int _tokenExpirationSkew = 30;
-
         private DiscoveryDocumentResponse? _disco;
 
         /// <summary>
         /// Creates an instance of the HelseIdService class.
         /// </summary>
-        /// <param name="configuration"></param>
-        /// <param name="httpClient"></param>
+        /// <param name="configuration">HelseID configuration used for acquiring bearer tokens.</param>
+        /// <param name="httpClient">HttpClient used for communication with the HelseID services.</param>
         public HelseIdService(HelseIdConfiguration configuration, HttpClient httpClient)
         {
             _configuration = configuration;
@@ -32,9 +33,10 @@ namespace PatientSearch
 
         /// <summary>
         /// Get the discovery document from the Authority.
+        /// Should be cached to prevent unnecessary calls to the HelseID services.
         /// </summary>
         /// <returns>The discovery document.</returns>
-        /// <exception cref="Exception"></exception>
+        /// <exception cref="Exception">Thrown when there's an error fetching the discovery document.</exception>
         private async Task<DiscoveryDocumentResponse> GetDiscoveryDocumentAsync()
         {
             var disco = await _httpClient.GetDiscoveryDocumentAsync(_configuration.Authority);
@@ -48,10 +50,10 @@ namespace PatientSearch
         }
 
         /// <summary>
-        /// Get a bearer token from the Authority.
+        /// Get a bearer token from the HelseID services.
         /// </summary>
         /// <returns>A bearer token.</returns>
-        /// <exception cref="Exception"></exception>
+        /// <exception cref="Exception">Thrown when there's an error fetching the bearer token or if the access token is missing.</exception>
         internal async Task<string> GetBearerTokenAsync()
         {
             if (DateTime.UtcNow < _persistedAccessTokenExpiresAt)
@@ -66,12 +68,11 @@ namespace PatientSearch
             {
                 Address = disco.TokenEndpoint,
                 ClientId = _configuration.ClientId,
-                GrantType = OidcConstants.GrantTypes.ClientCredentials,
                 Scope = string.Join(" ", _configuration.Scopes),
                 ClientAssertion = new ClientAssertion
                 {
                     Type = OidcConstants.ClientAssertionTypes.JwtBearer,
-                    Value = BuildClientAssertion(disco, _configuration.ClientId, _configuration.PrivateJwk)
+                    Value = BuildClientAssertion(disco, _configuration.ClientId, _configuration.PrivateJwk, _configuration.Algorithm)
                 },
                 ClientCredentialStyle = ClientCredentialStyle.PostBody
             });
@@ -81,13 +82,27 @@ namespace PatientSearch
                 throw new Exception(response.Error);
             }
 
-            _persistedAccessToken = response.AccessToken;
-            _persistedAccessTokenExpiresAt = DateTime.UtcNow.AddSeconds(response.ExpiresIn - _tokenExpirationSkew);
+            if (string.IsNullOrWhiteSpace(response.AccessToken))
+            {
+                throw new Exception("Access token is missing.");
+            }
 
-            return response.AccessToken ?? throw new Exception("Access token is missing.");
+            // Store the access token for subsequent calls to the API.
+            _persistedAccessToken = response.AccessToken;
+            _persistedAccessTokenExpiresAt = DateTime.UtcNow.AddSeconds(response.ExpiresIn - TokenExpirationSkew);
+
+            return response.AccessToken;
         }
 
-        private static string BuildClientAssertion(DiscoveryDocumentResponse disco, string clientId, string jwkPrivateKey)
+        /// <summary>
+        /// Builds a client assertion using provided parameters.
+        /// </summary>
+        /// <param name="disco">The discovery document.</param>
+        /// <param name="clientId">Client ID.</param>
+        /// <param name="jwkPrivateKey">JWK private key.</param>
+        /// <param name="algorithm">Signing algorithm.</param>
+        /// <returns>The client assertion token string.</returns>
+        private static string BuildClientAssertion(DiscoveryDocumentResponse disco, string clientId, string jwkPrivateKey, string algorithm)
         {
             var claims = new List<Claim>
             {
@@ -100,17 +115,23 @@ namespace PatientSearch
                 disco.TokenEndpoint,
                 claims,
                 DateTime.UtcNow,
-                DateTime.UtcNow.AddSeconds(60),
-                GetClientAssertionSigningCredentials(jwkPrivateKey));
+                DateTime.UtcNow.AddSeconds(30),
+                GetClientAssertionSigningCredentials(jwkPrivateKey, algorithm));
 
             var tokenHandler = new JwtSecurityTokenHandler();
             return tokenHandler.WriteToken(credentials);
         }
 
-        private static SigningCredentials GetClientAssertionSigningCredentials(string jwkPrivateKey)
+        /// <summary>
+        /// Generates signing credentials using provided JWK private key and algorithm.
+        /// </summary>
+        /// <param name="jwkPrivateKey">JWK private key.</param>
+        /// <param name="algorithm">Signing algorithm.</param>
+        /// <returns>The signing credentials.</returns>
+        private static SigningCredentials GetClientAssertionSigningCredentials(string jwkPrivateKey, string algorithm)
         {
             var securityKey = new JsonWebKey(jwkPrivateKey);
-            return new SigningCredentials(securityKey, SecurityAlgorithms.RsaSha256);
+            return new SigningCredentials(securityKey, algorithm);
         }
     }
 }

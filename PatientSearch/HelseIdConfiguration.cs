@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Microsoft.IdentityModel.Tokens;
 
 namespace PatientSearch
 {
@@ -16,6 +17,12 @@ namespace PatientSearch
         public string RsaPrivateKey { get; set; } = null!;
         public int RsaKeySizeBits { get; set; }
         public string PrivateJwk { get; set; } = null!;
+
+        /// <summary>
+        /// Algorithm used for signing the token.
+        /// Is not included in the HelseID configuration.
+        /// </summary>
+        public string Algorithm { get; set; } = SecurityAlgorithms.RsaSha256;
 
         public static HelseIdConfiguration? ReadFromFile(string filename)
         {
