@@ -22,10 +22,8 @@ This configuration has also been approved by VKP.
 
 If you create your own configuration it will have to be approved by VKP.
 
-
-
 For this test the configuration is included as a json-file, 
 in a production environment the private key must be sufficiently secured.
 
 ## Running the sample
- The sample has been pre-configured to use organization number *888134576* patient id *13116900216* (Line Danser).
+The sample has been pre-configured to use organization number *314159265* patient id *13116900216* (Line Danser).

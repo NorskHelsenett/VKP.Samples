@@ -4,12 +4,12 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
-namespace PatientSearch
+namespace Common
 {
     /// <summary>
     /// Represents a service for communicating with the HelseID services.
     /// </summary>
-    internal class HelseIdService
+    public class HelseIdService
     {
         private const int TokenExpirationSkew = 30;
 

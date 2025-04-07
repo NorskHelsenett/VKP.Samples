@@ -1,27 +1,49 @@
-﻿using PatientSearch;
+﻿using Common;
 
-// Read HelseID configuration from file.
-// This is configuration for TEST environment only,
-// keys for production environment should not be checked into source control!
-var helseIdConfiguration = HelseIdConfiguration.ReadFromFile("HelseID.json");
 
-if (helseIdConfiguration == null)
+var client = VkpClient.Create();
+
+if (client == null)
 {
-    Console.WriteLine("Missing configuration.");
+    Console.WriteLine("Unable to create VkpClient!");
     return;
 }
 
-var httpClient = new HttpClient();
-var helseIdService = new HelseIdService(helseIdConfiguration, httpClient);
-var client = new VkpClient(helseIdService, httpClient);
+const string identifier = "13116900216";
 
-var result = await client.PatientSearchAsync("888134576", "13116900216");
+Console.WriteLine($"PatientSearch with identifier '{identifier}' ...");
+var singleResult = await client.PatientSearchAsync(identifier);
 
-result.Switch(bundle =>
+singleResult.Switch(
+    bundle =>
     {
         Console.WriteLine($"Bundle with {bundle.Entry.Count} entries received from the API.");
     },
-    outcome =>
+    error =>
     {
         Console.WriteLine("OperationOutcome received from the API.");
+
+        if (error.Issue.Count > 0)
+        {
+            Console.WriteLine(error.Issue[0].Diagnostics);
+        }
+    });
+
+Console.WriteLine($"{Environment.NewLine}PatientSearch without identifier ...");
+var result = await client.PatientSearchAsync();
+
+
+result.Switch(
+    bundle =>
+    {
+        Console.WriteLine($"Bundle with {bundle.Entry.Count} entries received from the API (identifier = null).");
+    },
+    error =>
+    {
+        Console.WriteLine("OperationOutcome received from the API.");
+
+        if (error.Issue.Count > 0)
+        {
+            Console.WriteLine(error.Issue[0].Diagnostics);
+        }
     });
