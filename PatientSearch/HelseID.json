@@ -1,5 +1,4 @@
 {
-  "clientName": "NORSK HELSENETT SF - VKP-TestVFT (Konfigurasjon for Github)",
   "authority": "https://helseid-sts.test.nhn.no",
   "clientId": "64bcf495-19e8-491c-9d05-6dd6c40c838e",
   "grantTypes": [ "client_credentials" ],

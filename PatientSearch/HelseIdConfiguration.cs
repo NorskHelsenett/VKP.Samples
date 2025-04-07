@@ -8,7 +8,6 @@ namespace PatientSearch
     /// </summary>
     internal class HelseIdConfiguration
     {
-        public string ClientName { get; set; } = null!;
         public string Authority { get; set; } = null!;
         public string ClientId { get; set; } = null!;
         public string[] GrantTypes { get; set; } = [];
