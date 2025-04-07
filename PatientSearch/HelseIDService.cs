@@ -72,7 +72,7 @@ namespace PatientSearch
                 ClientAssertion = new ClientAssertion
                 {
                     Type = OidcConstants.ClientAssertionTypes.JwtBearer,
-                    Value = BuildClientAssertion(disco, _configuration.ClientId, _configuration.PrivateJwk, _configuration.Algorithm)
+                    Value = BuildClientAssertion(disco, _configuration.ClientId, _configuration.Authority, _configuration.PrivateJwk, _configuration.Algorithm)
                 },
                 ClientCredentialStyle = ClientCredentialStyle.PostBody
             });
@@ -99,10 +99,16 @@ namespace PatientSearch
         /// </summary>
         /// <param name="disco">The discovery document.</param>
         /// <param name="clientId">Client ID.</param>
+        /// <param name="authority">Client authority</param>
         /// <param name="jwkPrivateKey">JWK private key.</param>
         /// <param name="algorithm">Signing algorithm.</param>
         /// <returns>The client assertion token string.</returns>
-        private static string BuildClientAssertion(DiscoveryDocumentResponse disco, string clientId, string jwkPrivateKey, string algorithm)
+        private static string BuildClientAssertion(
+            DiscoveryDocumentResponse disco,
+            string clientId,
+            string authority,
+            string jwkPrivateKey,
+            string algorithm)
         {
             var claims = new List<Claim>
             {
@@ -110,28 +116,23 @@ namespace PatientSearch
                 new(JwtClaimTypes.IssuedAt, DateTimeOffset.Now.ToUnixTimeSeconds().ToString()),
                 new(JwtClaimTypes.JwtId, Guid.NewGuid().ToString("N")),
             };
-            var credentials = new JwtSecurityToken(
-                clientId,
-                disco.TokenEndpoint,
-                claims,
-                DateTime.UtcNow,
-                DateTime.UtcNow.AddSeconds(30),
-                GetClientAssertionSigningCredentials(jwkPrivateKey, algorithm));
+
+            var now = DateTime.UtcNow;
+            var payload = new JwtPayload(clientId, authority, claims, now, now.AddSeconds(30));
+
+            var header = new JwtHeader(
+                new SigningCredentials(new JsonWebKey(jwkPrivateKey), algorithm),
+                null,
+                tokenType: "client-authentication+jwt");
+            var credentials = new JwtSecurityToken(header, payload);
+
+            if (disco.JwksUri != null)
+            {
+                credentials.Header.Add("kid", disco.JwksUri);
+            }
 
             var tokenHandler = new JwtSecurityTokenHandler();
             return tokenHandler.WriteToken(credentials);
-        }
-
-        /// <summary>
-        /// Generates signing credentials using provided JWK private key and algorithm.
-        /// </summary>
-        /// <param name="jwkPrivateKey">JWK private key.</param>
-        /// <param name="algorithm">Signing algorithm.</param>
-        /// <returns>The signing credentials.</returns>
-        private static SigningCredentials GetClientAssertionSigningCredentials(string jwkPrivateKey, string algorithm)
-        {
-            var securityKey = new JsonWebKey(jwkPrivateKey);
-            return new SigningCredentials(securityKey, algorithm);
         }
     }
 }
