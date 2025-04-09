@@ -47,28 +47,6 @@ public class VkpClient
     }
 
     /// <summary>
-    /// Sends request to VKP's PatientSearch endpoint.
-    /// </summary>
-    /// <param name="identifier">Optional patient identifier</param>
-    /// <returns>Bundle with patient(s), or OperationOutcome in case of error.</returns>
-    public async Task<OneOf<Bundle, OperationOutcome>> PatientSearchAsync(string? identifier = null)
-    {
-        var httpRequest = await CreateHttpRequestMessageAsync("patient/_search");
-
-        // Specify required service codes.
-        httpRequest.Headers.Add("ServiceCodes", "rt");
-
-        // (Optional) Specify patient
-        if (identifier != null)
-        {
-            httpRequest.Content = new FormUrlEncodedContent(
-            [ new KeyValuePair<string, string>("identifier", identifier) ]);
-        }
-
-        return await SendSearchRequestAsync(httpRequest);
-    }
-
-    /// <summary>
     /// Sends request to VKP's AllergyIntoleranceSearch endpoint.
     /// </summary>
     /// <param name="identifier">Patient identifier</param>
@@ -151,6 +129,53 @@ public class VkpClient
 
         return await SendSearchRequestAsync(httpRequest);
     }
+
+    /// <summary>
+    /// Sends request to VKP's EpisodeOfCareSearch endpoint.
+    /// </summary>
+    /// <param name="identifier">Optional patient identifier</param>
+    /// <returns>Bundle with patient(s), or OperationOutcome in case of error.</returns>
+    public async Task<OneOf<Bundle, OperationOutcome>> EpisodeOfCareSearchAsync(string? identifier = null)
+    {
+        var httpRequest = await CreateHttpRequestMessageAsync("episodeofcare/_search");
+
+        // Specify required service codes.
+        httpRequest.Headers.Add("ServiceCodes", "rt");
+
+        // (Optional) Specify patient
+        if (identifier != null)
+        {
+            httpRequest.Content = new FormUrlEncodedContent(
+                [new KeyValuePair<string, string>("patient.identifier", identifier)]);
+        }
+
+        return await SendSearchRequestAsync(httpRequest);
+    }
+
+    /// <summary>
+    /// Sends request to VKP's PatientSearch endpoint.
+    /// </summary>
+    /// <param name="identifier">Optional patient identifier</param>
+    /// <returns>Bundle with patient(s), or OperationOutcome in case of error.</returns>
+    public async Task<OneOf<Bundle, OperationOutcome>> PatientSearchAsync(string? identifier = null)
+    {
+        var httpRequest = await CreateHttpRequestMessageAsync("patient/_search");
+
+        // Specify required service codes.
+        httpRequest.Headers.Add("ServiceCodes", "rt");
+
+        // (Optional) Specify patient
+        if (identifier != null)
+        {
+            httpRequest.Content = new FormUrlEncodedContent(
+                [new KeyValuePair<string, string>("identifier", identifier)]);
+        }
+
+        return await SendSearchRequestAsync(httpRequest);
+    }
+
+
+
 
     /// <summary>
     /// Creates HTTP request object, including header for the retrieved bearer token.

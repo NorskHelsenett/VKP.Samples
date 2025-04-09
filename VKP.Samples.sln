@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CompositionSearch", "Compos
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConditionSearch", "ConditionSearch\ConditionSearch.csproj", "{901E50D1-707C-4192-A73E-79AC2752538A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EpisodeOfCareSearch", "EpisodeOfCareSearch\EpisodeOfCareSearch.csproj", "{EF67F729-E382-43D4-9334-3C979C516063}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{901E50D1-707C-4192-A73E-79AC2752538A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{901E50D1-707C-4192-A73E-79AC2752538A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{901E50D1-707C-4192-A73E-79AC2752538A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF67F729-E382-43D4-9334-3C979C516063}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF67F729-E382-43D4-9334-3C979C516063}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF67F729-E382-43D4-9334-3C979C516063}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF67F729-E382-43D4-9334-3C979C516063}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

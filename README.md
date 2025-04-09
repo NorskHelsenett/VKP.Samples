@@ -27,4 +27,5 @@ The following sample projects are included:
 * `CareplanSearch`
 * `CompositionSearch`
 * `ConditionSearch`
+* `EpisodeOfCareSearch`
 * `PatientSearch`
