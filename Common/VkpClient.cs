@@ -111,6 +111,29 @@ public class VkpClient
     }
 
     /// <summary>
+    /// Sends request to VKP's CompositionSearch endpoint.
+    /// </summary>
+    /// <param name="identifier">Patient identifier</param>
+    /// <returns>Bundle with patient(s), or OperationOutcome in case of error.</returns>
+    public async Task<OneOf<Bundle, OperationOutcome>> CompositionSearchAsync(string identifier)
+    {
+        var httpRequest = await CreateHttpRequestMessageAsync("composition/_search");
+
+        // Specify required service codes.
+        httpRequest.Headers.Add("ServiceCodes", "dho");
+
+        // Specify patient
+        httpRequest.Content = new FormUrlEncodedContent(
+        [
+            new KeyValuePair<string, string>("patient.identifier", identifier),
+            new KeyValuePair<string, string>("date", "ge2024-05-17T07:08:09Z"),
+            new KeyValuePair<string, string>("date", "le2024-12-24T09:08:07Z"),
+        ]);
+
+        return await SendSearchRequestAsync(httpRequest);
+    }
+
+    /// <summary>
     /// Creates HTTP request object, including header for the retrieved bearer token.
     /// </summary>
     /// <param name="apiEndpoint">Last part of the API endpoint</param>
