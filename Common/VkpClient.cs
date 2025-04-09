@@ -69,6 +69,25 @@ public class VkpClient
     }
 
     /// <summary>
+    /// Sends request to VKP's AllergyIntoleranceSearch endpoint.
+    /// </summary>
+    /// <param name="identifier">Optional patient identifier</param>
+    /// <returns>Bundle with patient(s), or OperationOutcome in case of error.</returns>
+    public async Task<OneOf<Bundle, OperationOutcome>> AllergyIntoleranceSearchAsync(string identifier)
+    {
+        var httpRequest = await CreateHttpRequestMessageAsync("allergyintolerance/_search");
+
+        // Specify required service codes.
+        httpRequest.Headers.Add("ServiceCodes", "ta");
+
+        // Specify patient
+        httpRequest.Content = new FormUrlEncodedContent(
+                [ new KeyValuePair<string, string>("identifier", identifier) ]);
+
+        return await SendSearchRequestAsync(httpRequest);
+    }
+
+    /// <summary>
     /// Creates HTTP request object, including header for the retrieved bearer token.
     /// </summary>
     /// <param name="apiEndpoint">Last part of the API endpoint</param>

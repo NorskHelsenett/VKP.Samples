@@ -9,7 +9,7 @@ if (client == null)
     return;
 }
 
-const string identifier = "13116900216";
+const string identifier = Constants.TestPatientNin;
 
 Console.WriteLine($"PatientSearch with identifier '{identifier}' ...");
 var singleResult = await client.PatientSearchAsync(identifier);

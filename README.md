@@ -19,6 +19,10 @@ VKP API-s are protected using HelseID which is a national authentication service
 healthcare sector in Norway. HelseID is based on [OAuth 2.0 Framework](https://oauth.net/2/) See https://www.nhn.no/tjenester/helseid for more information.
 
 ## Basic samples
+This repository contains a Visual Studio solution with basic samples demonstrating how to use VKP API endpoints. The endpoints are documented in the developer's documentation pages, see https://utviklerportal.nhn.no/informasjonstjenester/velferdsteknologisk-knutepunkt-vkp.
 
-### Patient Search
-The code can be found in the `PatientSearch` folder.
+The following sample projects are included:
+
+* `AllergyIntoleranceSearch`
+* `PatientSearch`
+* 
