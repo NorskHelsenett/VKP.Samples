@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarePlanSearch", "CarePlanS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CompositionSearch", "CompositionSearch\CompositionSearch.csproj", "{CE448BA7-502F-4BA8-9D0A-F33004CCCAA9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConditionSearch", "ConditionSearch\ConditionSearch.csproj", "{901E50D1-707C-4192-A73E-79AC2752538A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{CE448BA7-502F-4BA8-9D0A-F33004CCCAA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CE448BA7-502F-4BA8-9D0A-F33004CCCAA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CE448BA7-502F-4BA8-9D0A-F33004CCCAA9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{901E50D1-707C-4192-A73E-79AC2752538A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{901E50D1-707C-4192-A73E-79AC2752538A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{901E50D1-707C-4192-A73E-79AC2752538A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{901E50D1-707C-4192-A73E-79AC2752538A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

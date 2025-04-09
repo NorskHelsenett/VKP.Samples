@@ -134,6 +134,25 @@ public class VkpClient
     }
 
     /// <summary>
+    /// Sends request to VKP's ConditionSearch endpoint.
+    /// </summary>
+    /// <param name="identifier">Patient identifier</param>
+    /// <returns>Bundle with patient(s), or OperationOutcome in case of error.</returns>
+    public async Task<OneOf<Bundle, OperationOutcome>> ConditionSearchAsync(string identifier)
+    {
+        var httpRequest = await CreateHttpRequestMessageAsync("condition/_search");
+
+        // Specify required service codes.
+        httpRequest.Headers.Add("ServiceCodes", "ta");
+
+        // Specify patient
+        httpRequest.Content = new FormUrlEncodedContent(
+        [ new KeyValuePair<string, string>("patient.identifier", identifier) ]);
+
+        return await SendSearchRequestAsync(httpRequest);
+    }
+
+    /// <summary>
     /// Creates HTTP request object, including header for the retrieved bearer token.
     /// </summary>
     /// <param name="apiEndpoint">Last part of the API endpoint</param>

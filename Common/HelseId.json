@@ -7,6 +7,7 @@
     "nhn:vkp/api/user/careplan.read",
     "nhn:vkp/api/user/composition.read",
     "nhn:vkp/api/user/composition.write",
+    "nhn:vkp/api/user/condition.read",
     "nhn:vkp/api/user/episodeofcare.read",
     "nhn:vkp/api/user/medicationdispense.write",
     "nhn:vkp/api/user/patient.read",

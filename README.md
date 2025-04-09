@@ -25,4 +25,6 @@ The following sample projects are included:
 
 * `AllergyIntoleranceSearch`
 * `CareplanSearch`
+* `CompositionSearch`
+* `ConditionSearch`
 * `PatientSearch`
