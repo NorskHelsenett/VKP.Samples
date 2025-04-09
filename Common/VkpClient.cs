@@ -1,8 +1,12 @@
 ﻿using Hl7.Fhir.Model;
+using Hl7.Fhir.Model.CdsHooks;
 using Hl7.Fhir.Serialization;
 using OneOf;
+using OneOf.Types;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Json;
 
 namespace Common;
 
@@ -45,6 +49,17 @@ public class VkpClient
 
         return new VkpClient(service, httpClient);
     }
+
+    public async Task<OneOf<Success, OperationOutcome>> BundleJournaling(string messageFilename)
+    {
+        var message = await ReadMessageFileAsync(messageFilename);
+
+        var httpRequest = await CreateHttpRequestMessageAsync("bundle");
+        httpRequest.Content = new StringContent(message);
+
+        return await SendJournalingRequestAsync(httpRequest);
+    }
+
 
     /// <summary>
     /// Sends request to VKP's AllergyIntoleranceSearch endpoint.
@@ -233,5 +248,52 @@ public class VkpClient
                 response.EnsureSuccessStatusCode();
                 return parser.Parse<Bundle>(json);
         }
+    }
+
+    /// <summary>
+    /// Sends request and returns the result (assuming request to one of the journaling endpoints).
+    /// </summary>
+    /// <param name="request">HttpRequestMessage object, with headers and body set.</param>
+    /// <returns></returns>
+    private async Task<OneOf<Success, OperationOutcome>> SendJournalingRequestAsync(HttpRequestMessage request)
+    {
+        var response = await _httpClient.SendAsync(request);
+
+        if (response.StatusCode == HttpStatusCode.BadRequest)
+        {
+            var json = await response.Content.ReadAsStringAsync();
+            var parser = new FhirJsonParser();
+            return parser.Parse<OperationOutcome>(json);
+        }
+
+        response.EnsureSuccessStatusCode();
+        return new Success();
+    }
+
+
+    /// <summary>
+    /// Reads message from file
+    /// </summary>
+    /// <param name="filename"></param>
+    /// <returns>File contents as string</returns>
+    /// <exception cref="FileNotFoundException"></exception>
+    /// <exception cref="FileLoadException"></exception>
+    private static async Task<string> ReadMessageFileAsync(string filename)
+    {
+        var relativePath = $"Messages/{filename}";
+
+        if (string.IsNullOrEmpty(relativePath) || !File.Exists(relativePath))
+        {
+            throw new FileNotFoundException($"The specified file does not exist: {relativePath}");
+        }
+
+        var message = await File.ReadAllTextAsync(relativePath);
+
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            throw new FileLoadException("Unable to read file contents");
+        }
+
+        return message;
     }
 }

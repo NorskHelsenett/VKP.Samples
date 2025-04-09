@@ -17,6 +17,9 @@
     <None Update="HelseId.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Messages\Bundle_OppfølgingAvVarsel_TrygghetsAlarm.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
