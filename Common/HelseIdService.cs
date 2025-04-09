@@ -125,10 +125,10 @@ namespace Common
                 null,
                 tokenType: "client-authentication+jwt");
             var credentials = new JwtSecurityToken(header, payload);
-
-            if (disco.JwksUri != null)
+            
+            if (disco.KeySet?.Keys.Count == 1)
             {
-                credentials.Header.Add("kid", disco.JwksUri);
+                credentials.Header.Add("kid", disco.KeySet.Keys.Single().Kid);
             }
 
             var tokenHandler = new JwtSecurityTokenHandler();
