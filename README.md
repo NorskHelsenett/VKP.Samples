@@ -28,4 +28,5 @@ The following sample projects are included:
 * `CompositionSearch`
 * `ConditionSearch`
 * `EpisodeOfCareSearch`
+* `MedicationStatementSearch`
 * `PatientSearch`

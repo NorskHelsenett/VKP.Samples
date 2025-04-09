@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConditionSearch", "Conditio
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EpisodeOfCareSearch", "EpisodeOfCareSearch\EpisodeOfCareSearch.csproj", "{EF67F729-E382-43D4-9334-3C979C516063}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MedicationStatementSearch", "MedicationStatementSearch\MedicationStatementSearch.csproj", "{DBDD7809-888C-477C-8057-2C12154DBD68}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{EF67F729-E382-43D4-9334-3C979C516063}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EF67F729-E382-43D4-9334-3C979C516063}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EF67F729-E382-43D4-9334-3C979C516063}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DBDD7809-888C-477C-8057-2C12154DBD68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBDD7809-888C-477C-8057-2C12154DBD68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBDD7809-888C-477C-8057-2C12154DBD68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBDD7809-888C-477C-8057-2C12154DBD68}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
