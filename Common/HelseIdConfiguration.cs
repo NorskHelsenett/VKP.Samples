@@ -1,18 +1,17 @@
 ﻿using System.Text.Json;
 using Microsoft.IdentityModel.Tokens;
 
-namespace PatientSearch
+namespace Common
 {
     /// <summary>
     /// Internal class representing the HelseID configuration.
     /// </summary>
-    internal class HelseIdConfiguration
+    public class HelseIdConfiguration
     {
-        public string ClientName { get; set; } = null!;
         public string Authority { get; set; } = null!;
         public string ClientId { get; set; } = null!;
-        public string[] GrantTypes { get; set; } = Array.Empty<string>();
-        public string[] Scopes { get; set; } = Array.Empty<string>();
+        public string[] GrantTypes { get; set; } = [];
+        public string[] Scopes { get; set; } = [];
         public string SecretType { get; set; } = null!;
         public string RsaPrivateKey { get; set; } = null!;
         public int RsaKeySizeBits { get; set; }
@@ -35,7 +34,7 @@ namespace PatientSearch
 
             return JsonSerializer.Deserialize<HelseIdConfiguration>(jsonContent, new JsonSerializerOptions()
             {
-                // HelseID configuration is camelCase, overr
+                // HelseID configuration is camelCase
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                 // Or: PropertyNameCaseInsensitive = true
             });
