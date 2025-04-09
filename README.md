@@ -24,5 +24,5 @@ This repository contains a Visual Studio solution with basic samples demonstrati
 The following sample projects are included:
 
 * `AllergyIntoleranceSearch`
+* `CareplanSearch`
 * `PatientSearch`
-* 

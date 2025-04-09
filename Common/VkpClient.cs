@@ -71,7 +71,7 @@ public class VkpClient
     /// <summary>
     /// Sends request to VKP's AllergyIntoleranceSearch endpoint.
     /// </summary>
-    /// <param name="identifier">Optional patient identifier</param>
+    /// <param name="identifier">Patient identifier</param>
     /// <returns>Bundle with patient(s), or OperationOutcome in case of error.</returns>
     public async Task<OneOf<Bundle, OperationOutcome>> AllergyIntoleranceSearchAsync(string identifier)
     {
@@ -83,6 +83,29 @@ public class VkpClient
         // Specify patient
         httpRequest.Content = new FormUrlEncodedContent(
                 [ new KeyValuePair<string, string>("identifier", identifier) ]);
+
+        return await SendSearchRequestAsync(httpRequest);
+    }
+
+    /// <summary>
+    /// Sends request to VKP's CarePlanSearch endpoint.
+    /// </summary>
+    /// <param name="identifier">Patient identifier</param>
+    /// <returns>Bundle with patient(s), or OperationOutcome in case of error.</returns>
+    public async Task<OneOf<Bundle, OperationOutcome>> CarePlanSearchAsync(string identifier)
+    {
+        var httpRequest = await CreateHttpRequestMessageAsync("careplan/_search");
+
+        // Specify required service codes.
+        httpRequest.Headers.Add("ServiceCodes", "ta,gps");
+
+        // Specify patient
+        httpRequest.Content = new FormUrlEncodedContent(
+            [
+                new KeyValuePair<string, string>("patient.identifier", identifier),
+                new KeyValuePair<string, string>("date", "ge2024-05-17T07:08:09Z"),
+                new KeyValuePair<string, string>("date", "le2024-12-24T09:08:07Z"),
+            ]);
 
         return await SendSearchRequestAsync(httpRequest);
     }

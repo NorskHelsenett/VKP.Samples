@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AllergyIntoleranceSearch", "AllergyIntoleranceSearch\AllergyIntoleranceSearch.csproj", "{DBE2DC9A-BF35-45EB-B5DF-E0C253EDAB3B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarePlanSearch", "CarePlanSearch\CarePlanSearch.csproj", "{48F61D77-C109-4DC3-83E3-B8D13A50BB12}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{DBE2DC9A-BF35-45EB-B5DF-E0C253EDAB3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DBE2DC9A-BF35-45EB-B5DF-E0C253EDAB3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DBE2DC9A-BF35-45EB-B5DF-E0C253EDAB3B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48F61D77-C109-4DC3-83E3-B8D13A50BB12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48F61D77-C109-4DC3-83E3-B8D13A50BB12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48F61D77-C109-4DC3-83E3-B8D13A50BB12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48F61D77-C109-4DC3-83E3-B8D13A50BB12}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
