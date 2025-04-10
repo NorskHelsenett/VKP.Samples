@@ -50,6 +50,11 @@ public class VkpClient
         return new VkpClient(service, httpClient);
     }
 
+    /// <summary>
+    /// Sends journaling request to VKP's bundle endpoint.
+    /// </summary>
+    /// <param name="messageFilename"></param>
+    /// <returns>Success, or OperationOutcome in case of error.</returns>
     public async Task<OneOf<Success, OperationOutcome>> BundleJournaling(string messageFilename)
     {
         var message = await ReadMessageFileAsync(messageFilename);
@@ -59,7 +64,6 @@ public class VkpClient
 
         return await SendJournalingRequestAsync(httpRequest);
     }
-
 
     /// <summary>
     /// Sends request to VKP's AllergyIntoleranceSearch endpoint.
