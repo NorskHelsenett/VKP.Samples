@@ -11,8 +11,8 @@ if (client == null)
 
 const string identifier = Constants.TestPatientNin;
 
-Console.WriteLine($"PatientSearch with identifier '{identifier}' ...");
-var singleResult = await client.PatientSearchAsync(identifier);
+Console.WriteLine($"EpisodeOfCareSearch with identifier '{identifier}' ...");
+var singleResult = await client.EpisodeOfCareSearchAsync(identifier);
 
 singleResult.Switch(
     bundle =>
@@ -29,8 +29,8 @@ singleResult.Switch(
         }
     });
 
-Console.WriteLine($"{Environment.NewLine}PatientSearch without identifier ...");
-var result = await client.PatientSearchAsync();
+Console.WriteLine($"{Environment.NewLine}EpisodeOfCareSearch without identifier ...");
+var result = await client.EpisodeOfCareSearchAsync();
 
 
 result.Switch(

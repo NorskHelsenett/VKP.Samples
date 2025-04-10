@@ -1,0 +1,231 @@
+{
+  "resourceType": "Bundle",
+  "identifier": {
+    "system": "Skyresponse:GlobalAlarmId",
+    "value": "B65B90BA7EF000120240703083502"
+  },
+  "type": "document",
+  "timestamp": "2024-07-03T08:36:37.1678092+00:00",
+  "entry": [
+    {
+      "fullUrl": "urn:uuid:aa6d7c97-5f20-48ab-a564-8508fa302ede",
+      "resource": {
+        "resourceType": "Composition",
+        "meta": {
+          "profile": [
+            "http://ehelse.no/fhir/StructureDefinition/vkp-Composition-v090"
+          ]
+        },
+        "status": "final",
+        "type": {
+          "coding": [
+            {
+              "system": "http://ehelse.no/fhir/CodeSystem/vkp-alert-code-v090",
+              "code": "7"
+            }
+          ],
+          "text": "Trygghetsalarm"
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://ehelse.no/fhir/CodeSystem/vkp-composition-category-v090",
+                "code": "1"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "identifier": {
+            "system": "http://cosdoc.dips.no/lopenummer",
+            "value": "1302"
+          }
+        },
+        "date": "2024-07-03T08:36:37Z",
+        "author": [
+          {
+            "identifier": {
+              "system": "Skyresponse:Admin:UserName",
+              "value": "kbf@trondheim"
+            },
+            "display": "Kristian Fougner"
+          }
+        ],
+        "title": "Alarm id: B65B90BA7EF000120240703083502",
+        "event": [
+          {
+            "code": [
+              {
+                "coding": [
+                  {
+                    "system": "http://ehelse.no/fhir/CodeSystem/vkp-composition-event-v090",
+                    "code": "0"
+                  }
+                ]
+              }
+            ],
+            "period": {
+              "start": "2024-07-03T08:35:32Z"
+            }
+          },
+          {
+            "code": [
+              {
+                "coding": [
+                  {
+                    "system": "http://ehelse.no/fhir/CodeSystem/vkp-composition-event-v090",
+                    "code": "1"
+                  }
+                ],
+                "text": "kbf@trondheim"
+              }
+            ],
+            "period": {
+              "start": "2024-07-03T08:35:39Z"
+            }
+          },
+          {
+            "code": [
+              {
+                "coding": [
+                  {
+                    "system": "http://ehelse.no/fhir/CodeSystem/vkp-composition-event-v090",
+                    "code": "3"
+                  }
+                ],
+                "text": "kbf@trondheim"
+              }
+            ],
+            "period": {
+              "start": "2024-07-03T08:36:23Z"
+            }
+          }
+        ],
+        "section": [
+          {
+            "title": "Alarm info",
+            "code": {
+              "coding": [
+                {
+                  "system": "http://ehelse.no/fhir/CodeSystem/vkp-composition-section-v090",
+                  "code": "2"
+                }
+              ]
+            },
+            "text": {
+              "status": "generated",
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">GlobalAlarmId: B65B90BA7EF000120240703083502.</div>"
+            },
+            "orderedBy": {
+              "coding": [
+                {
+                  "system": "Skyresponse:timestamp",
+                  "code": "2024-07-03T08:35:32"
+                }
+              ]
+            },
+            "entry": [
+              {
+                "reference": "urn:uuid:8db10249-9139-43a8-9e19-4bc9619aaddc"
+              }
+            ]
+          },
+          {
+            "title": "Alarm location",
+            "code": {
+              "coding": [
+                {
+                  "system": "http://ehelse.no/fhir/CodeSystem/vkp-composition-section-v090",
+                  "code": "2"
+                }
+              ]
+            },
+            "text": {
+              "status": "generated",
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Siste kjente sted: POE_001d940dfec5</div>"
+            },
+            "orderedBy": {
+              "coding": [
+                {
+                  "system": "Skyresponse:timestamp",
+                  "code": "2024-07-03T08:35:36"
+                }
+              ]
+            },
+            "entry": [
+              {
+                "reference": "urn:uuid:8db10249-9139-43a8-9e19-4bc9619aaddc"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8db10249-9139-43a8-9e19-4bc9619aaddc",
+      "resource": {
+        "resourceType": "DetectedIssue",
+        "meta": {
+          "profile": [
+            "http://ehelse.no/fhir/StructureDefinition/vkp-DetectedIssue-v090"
+          ]
+        },
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "system": "http://ehelse.no/fhir/CodeSystem/vkp-alert-code-v090",
+              "code": "7"
+            }
+          ],
+          "text": "300 - Trygghetsalarm"
+        },
+        "patient": {
+          "identifier": {
+            "system": "http://cosdoc.dips.no/lopenummer",
+            "value": "1302"
+          }
+        },
+        "identifiedDateTime": "2024-07-03T08:35:32Z",
+        "author": {
+          "reference": "urn:uuid:36f4fcb1-1d2f-43d3-b267-301a3f0d348a"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:36f4fcb1-1d2f-43d3-b267-301a3f0d348a",
+      "resource": {
+        "resourceType": "Device",
+        "identifier": [
+          {
+            "system": "https://fhir.vkp.com/system-codes/IMEI",
+            "value": ""
+          },
+          {
+            "system": "Skyresponse:TransmitterIdentifier",
+            "value": "C02_00867G_0_4627"
+          }
+        ],
+        "serialNumber": "C02_00756d_0_4627",
+        "deviceName": [
+          {
+            "name": "GPT3-WTRSB",
+            "type": "model-name"
+          }
+        ],
+        "type": {
+          "coding": [
+            {
+              "system": "Skyresponse:productId",
+              "code": "136"
+            }
+          ]
+        },
+        "owner": {
+          "display": "Trondheim Kommune-Trondheim kommune Trygghetsalarmer"
+        }
+      }
+    }
+  ]
+}
