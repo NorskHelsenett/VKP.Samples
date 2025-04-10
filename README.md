@@ -30,3 +30,4 @@ The following sample projects are included:
 * `EpisodeOfCareSearch`
 * `MedicationStatementSearch`
 * `PatientSearch`
+* `BundleJournaling`
