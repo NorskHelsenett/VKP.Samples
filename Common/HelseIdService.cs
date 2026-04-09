@@ -1,4 +1,4 @@
-﻿using IdentityModel;
+using IdentityModel;
 using IdentityModel.Client;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -13,7 +13,7 @@ namespace Common
     {
         private const int TokenExpirationSkew = 30;
 
-        private readonly HelseIdConfiguration _configuration;
+        private readonly HelseIdConfig _configuration;
         private readonly HttpClient _httpClient;
 
         private DateTime? _persistedAccessTokenExpiresAt;
@@ -25,7 +25,7 @@ namespace Common
         /// </summary>
         /// <param name="configuration">HelseID configuration used for acquiring bearer tokens.</param>
         /// <param name="httpClient">HttpClient used for communication with the HelseID services.</param>
-        public HelseIdService(HelseIdConfiguration configuration, HttpClient httpClient)
+        public HelseIdService(HelseIdConfig configuration, HttpClient httpClient)
         {
             _configuration = configuration;
             _httpClient = httpClient;
@@ -95,6 +95,53 @@ namespace Common
         }
 
         /// <summary>
+        /// Get a bearer token from the HelseID services.
+        /// </summary>
+        /// <returns>A bearer token.</returns>
+        /// <exception cref="Exception">Thrown when there's an error fetching the bearer token or if the access token is missing.</exception>
+        internal async Task<string> GetDPoPTokenAsync()
+        {
+            if (DateTime.UtcNow < _persistedAccessTokenExpiresAt)
+            {
+                return _persistedAccessToken!;
+            }
+
+            // Use the cached discovery document or fetch a new one.
+            var disco = _disco ?? await GetDiscoveryDocumentAsync();
+
+
+
+            var response = await _httpClient.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+            {
+                Address = disco.TokenEndpoint,
+                ClientId = _configuration.ClientId,
+                Scope = string.Join(" ", _configuration.Scopes),
+                ClientAssertion = new ClientAssertion
+                {
+                    Type = OidcConstants.ClientAssertionTypes.JwtBearer,
+                    Value = BuildClientAssertion(disco, _configuration.ClientId, _configuration.Authority, _configuration.PrivateJwk, _configuration.Algorithm)
+                },
+                ClientCredentialStyle = ClientCredentialStyle.PostBody
+            });
+
+            if (response.IsError)
+            {
+                throw new Exception(response.Error);
+            }
+
+            if (string.IsNullOrWhiteSpace(response.AccessToken))
+            {
+                throw new Exception("Access token is missing.");
+            }
+
+            // Store the access token for subsequent calls to the API.
+            _persistedAccessToken = response.AccessToken;
+            _persistedAccessTokenExpiresAt = DateTime.UtcNow.AddSeconds(response.ExpiresIn - TokenExpirationSkew);
+
+            return response.AccessToken;
+        }
+
+        /// <summary>
         /// Builds a client assertion using provided parameters.
         /// </summary>
         /// <param name="disco">The discovery document.</param>
@@ -125,7 +172,7 @@ namespace Common
                 null,
                 tokenType: "client-authentication+jwt");
             var credentials = new JwtSecurityToken(header, payload);
-            
+
             if (disco.KeySet?.Keys.Count == 1)
             {
                 credentials.Header.Add("kid", disco.KeySet.Keys.Single().Kid);

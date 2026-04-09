@@ -1,12 +1,12 @@
-﻿using System.Text.Json;
 using Microsoft.IdentityModel.Tokens;
+using System.Text.Json;
 
 namespace Common
 {
     /// <summary>
     /// Internal class representing the HelseID configuration.
     /// </summary>
-    public class HelseIdConfiguration
+    public class HelseIdConfig
     {
         public string Authority { get; set; } = null!;
         public string ClientId { get; set; } = null!;
@@ -23,7 +23,7 @@ namespace Common
         /// </summary>
         public string Algorithm { get; set; } = SecurityAlgorithms.RsaSha256;
 
-        public static HelseIdConfiguration? ReadFromFile(string filename)
+        public static HelseIdConfig? ReadFromFile(string filename)
         {
             if (string.IsNullOrEmpty(filename) || !File.Exists(filename))
             {
@@ -32,7 +32,7 @@ namespace Common
 
             var jsonContent = File.ReadAllText(filename);
 
-            return JsonSerializer.Deserialize<HelseIdConfiguration>(jsonContent, new JsonSerializerOptions()
+            return JsonSerializer.Deserialize<HelseIdConfig>(jsonContent, new JsonSerializerOptions()
             {
                 // HelseID configuration is camelCase
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

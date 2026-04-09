@@ -1,12 +1,9 @@
-﻿using Hl7.Fhir.Model;
-using Hl7.Fhir.Model.CdsHooks;
+using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 using OneOf;
 using OneOf.Types;
 using System.Net;
 using System.Net.Http.Headers;
-using System.Text;
-using System.Text.Json;
 
 namespace Common;
 
@@ -35,8 +32,8 @@ public class VkpClient
     /// </summary>
     public static VkpClient? Create()
     {
-        
-        var helseIdConfig = HelseIdConfiguration.ReadFromFile(Constants.HelseIdConfigFilename);
+
+        var helseIdConfig = HelseIdConfig.ReadFromFile(Constants.HelseIdConfigFilename);
 
         if (helseIdConfig == null)
         {
@@ -79,7 +76,7 @@ public class VkpClient
 
         // Specify patient
         httpRequest.Content = new FormUrlEncodedContent(
-                [ new KeyValuePair<string, string>("identifier", identifier) ]);
+                [new KeyValuePair<string, string>("identifier", identifier)]);
 
         return await SendSearchRequestAsync(httpRequest);
     }
@@ -144,7 +141,7 @@ public class VkpClient
 
         // Specify patient
         httpRequest.Content = new FormUrlEncodedContent(
-        [ new KeyValuePair<string, string>("patient.identifier", identifier) ]);
+        [new KeyValuePair<string, string>("patient.identifier", identifier)]);
 
         return await SendSearchRequestAsync(httpRequest);
     }
