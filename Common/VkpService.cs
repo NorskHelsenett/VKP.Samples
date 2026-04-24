@@ -13,7 +13,7 @@ namespace Common;
 /// </summary>
 public class VkpService
 {
-    private readonly HelseIdServiceV2 _helseIdService;
+    private readonly HelseIdService _helseIdService;
     private readonly IDPoPProofCreatorForApiRequests _dPoPProofCreatorForApiRequests;
     private readonly HttpClient _httpClient;
 
@@ -23,7 +23,7 @@ public class VkpService
     /// <param name="helseIdService">The HelseID service used for acquiring tokens.</param>
     /// <param name="dPoPProofCreatorForApiRequests"></param>
     /// <param name="httpClient">The HttpClient used for communication.</param>
-    public VkpService(HelseIdServiceV2 helseIdService, IDPoPProofCreatorForApiRequests dPoPProofCreatorForApiRequests,
+    public VkpService(HelseIdService helseIdService, IDPoPProofCreatorForApiRequests dPoPProofCreatorForApiRequests,
         HttpClient httpClient)
     {
         _helseIdService = helseIdService;

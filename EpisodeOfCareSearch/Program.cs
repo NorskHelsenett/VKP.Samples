@@ -12,8 +12,8 @@ namespace EpisodeOfCareSearch
         {
             var helseIdConfiguration = new HelseIdConfiguration
             {
-                ClientId = ConfigurationValues.ClientCredentialsSampleClientId,
-                Scope = "",
+                ClientId = ConfigurationValues.ClientCredentialsId,
+                Scope = "nhn:vkp/api/user/episodeofcare.read",
                 IssuerUri = ConfigurationValues.IssuerUri,
             };
 
@@ -22,13 +22,42 @@ namespace EpisodeOfCareSearch
             serviceCollection.AddHelseIdClientCredentials(helseIdConfiguration)
                 .AddJwkForClientAuthentication(ConfigurationValues.ClientCredentialsSampleRsaPrivateKeyJwk);
 
-            serviceCollection.AddSingleton<HelseIdServiceV2>();
+            serviceCollection.AddSingleton<HelseIdService>();
             serviceCollection.AddSingleton<VkpService>();
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
-            var serviceForTokenAndApiResponses = serviceProvider.GetService<VkpService>();
+            var vkpService = serviceProvider.GetService<VkpService>();
 
-            await serviceForTokenAndApiResponses!.EpisodeOfCareSearchAsync();
+            var result = await vkpService!.EpisodeOfCareSearchAsync();
+
+            result.Switch(
+                bundle => { Console.WriteLine($"Bundle with {bundle.Entry.Count} entries received from the API."); },
+                error =>
+                {
+                    Console.WriteLine("OperationOutcome received from the API.");
+
+                    if (error.Issue.Count > 0)
+                    {
+                        Console.WriteLine(error.Issue[0].Diagnostics);
+                    }
+                });
+
+
+            const string identifier = Constants.TestPatientNin;
+
+            var result2 = await vkpService!.EpisodeOfCareSearchAsync(identifier);
+
+            result2.Switch(
+                bundle => { Console.WriteLine($"Bundle with {bundle.Entry.Count} entries received from the API."); },
+                error =>
+                {
+                    Console.WriteLine("OperationOutcome received from the API.");
+
+                    if (error.Issue.Count > 0)
+                    {
+                        Console.WriteLine(error.Issue[0].Diagnostics);
+                    }
+                });
         }
     }
 }
