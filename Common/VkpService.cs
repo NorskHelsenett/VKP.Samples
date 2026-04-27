@@ -202,14 +202,13 @@ public class VkpService
     private async Task<HttpRequestMessage> CreateHttpRequestMessageAsync(string apiEndpoint)
     {
         // Create request to API endpoint
-
         var uri = $"{Constants.ApiBaseUrl}/{Constants.TestOrgNumber}/{apiEndpoint}";
 
         var httpRequest = new HttpRequestMessage(HttpMethod.Post, uri);
 
         // Get token and update request
         var accessTokenResponse = await _helseIdService.GetTokenAsync();
-
+        // Create and set DPoP Proof
         var dPopProof =
             await _dPoPProofCreatorForApiRequests.CreateDPoPProofForApiRequest(HttpMethod.Get, uri,
                 accessTokenResponse);
