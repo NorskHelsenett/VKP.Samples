@@ -1,5 +1,9 @@
-﻿##### Disclaimer
+##### Disclaimer
 *This sample is a work in progress and might become updated without notice.*
+
+# HelseId Package
+This sample uses HelseId Packages in order to generate DPoP tokens and DPoP proof
+Proof and token are used within a request against VKP Api
 
 # CarePlanSearch
 This sample uses functionality in the Common project to demonstrate how to perform a careplan search using the VKP API. 
