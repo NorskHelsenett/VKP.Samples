@@ -1,28 +1,49 @@
-﻿using Common;
+using Common;
+using HelseId.Library;
+using HelseId.Library.ClientCredentials;
+using HelseId.Library.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
-
-var client = VkpClient.Create();
-
-if (client == null)
+namespace BundleJournaling
 {
-    Console.WriteLine("Unable to create VkpClient!");
-    return;
-}
-
-Console.WriteLine($"Journaling Bundle ...");
-var result = await client.BundleJournaling("Bundle_OppfølgingAvVarsel_TrygghetsAlarm.json");
-
-result.Switch(
-    _ =>
+    static class Program
     {
-        Console.WriteLine($"Success!");
-    },
-    error =>
-    {
-        Console.WriteLine("OperationOutcome received from the API.");
-
-        foreach (var problem in error.Issue)
+        static async Task Main(string[] args)
         {
-            Console.WriteLine(problem.Details.Text);
+            var helseIdConfiguration = new HelseIdConfiguration
+            {
+                ClientId = ConfigurationValues.ClientCredentialsId,
+                Scope = "nhn:vkp/api/user/bundle.write",
+                IssuerUri = ConfigurationValues.IssuerUri,
+            };
+
+            var serviceCollection = new ServiceCollection();
+
+            serviceCollection.AddHelseIdClientCredentials(helseIdConfiguration)
+                .AddJwkForClientAuthentication(ConfigurationValues.ClientCredentialsSampleRsaPrivateKeyJwk);
+
+            serviceCollection.AddSingleton<HelseIdService>();
+            serviceCollection.AddSingleton<VkpService>();
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var vkpService = serviceProvider.GetService<VkpService>();
+
+
+            Console.WriteLine($"Journaling Bundle ...");
+
+            var result = await vkpService!.BundleJournaling("Bundle_OppfølgingAvVarsel_TrygghetsAlarm.json");
+
+            result.Switch(
+                _ => { Console.WriteLine($"Success!"); },
+                error =>
+                {
+                    Console.WriteLine("OperationOutcome received from the API.");
+
+                    foreach (var problem in error.Issue)
+                    {
+                        Console.WriteLine(problem.Details.Text);
+                    }
+                });
         }
-    });
+    }
+}

@@ -11,12 +11,10 @@
     <PackageReference Include="IdentityModel" Version="7.0.0" />
     <PackageReference Include="OneOf" Version="3.0.271" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.7.0" />
+    <PackageReference Include="HelseID.Library.ClientCredentials" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="HelseId.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="Messages\Bundle_OppfølgingAvVarsel_TrygghetsAlarm.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

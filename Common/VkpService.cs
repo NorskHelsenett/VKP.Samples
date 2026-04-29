@@ -1,53 +1,56 @@
-﻿using Hl7.Fhir.Model;
-using Hl7.Fhir.Model.CdsHooks;
+using HelseId.Library;
+using HelseId.Library.Interfaces.JwtTokens;
+using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 using OneOf;
 using OneOf.Types;
 using System.Net;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Text.Json;
 
 namespace Common;
 
 /// <summary>
 /// Represents an example client used for api-communication.
 /// </summary>
-public class VkpClient
+public class VkpService
 {
     private readonly HelseIdService _helseIdService;
+    private readonly IDPoPProofCreatorForApiRequests _dPoPProofCreatorForApiRequests;
     private readonly HttpClient _httpClient;
-
 
     /// <summary>
     /// Creates an instance of the VkpClient class.
     /// </summary>
     /// <param name="helseIdService">The HelseID service used for acquiring tokens.</param>
+    /// <param name="dPoPProofCreatorForApiRequests"></param>
     /// <param name="httpClient">The HttpClient used for communication.</param>
-    private VkpClient(HelseIdService helseIdService, HttpClient httpClient)
+    public VkpService(HelseIdService helseIdService, IDPoPProofCreatorForApiRequests dPoPProofCreatorForApiRequests,
+        HttpClient httpClient)
     {
         _helseIdService = helseIdService;
+        _dPoPProofCreatorForApiRequests = dPoPProofCreatorForApiRequests;
         _httpClient = httpClient;
     }
 
     /// <summary>
-    /// Creates an instance of the VkpClient class.
+    /// Sends request to VKP's EpisodeOfCareSearch endpoint.
     /// </summary>
-    public static VkpClient? Create()
+    /// <param name="identifier">Optional patient identifier</param>
+    /// <returns>Bundle with patient(s), or OperationOutcome in case of error.</returns>
+    public async Task<OneOf<Bundle, OperationOutcome>> EpisodeOfCareSearchAsync(string? identifier = null)
     {
-        
-        var helseIdConfig = HelseIdConfiguration.ReadFromFile(Constants.HelseIdConfigFilename);
+        var httpRequest = await CreateHttpRequestMessageAsync("episodeofcare/_search");
 
-        if (helseIdConfig == null)
+        // Specify required service codes.
+        httpRequest.Headers.Add("ServiceCodes", "rt");
+
+        // (Optional) Specify patient
+        if (identifier != null)
         {
-            Console.WriteLine("Missing HelseID configuration.");
-            return null;
+            httpRequest.Content = new FormUrlEncodedContent(
+                [new KeyValuePair<string, string>("patient.identifier", identifier)]);
         }
 
-        var httpClient = new HttpClient();
-        var service = new HelseIdService(helseIdConfig, httpClient);
-
-        return new VkpClient(service, httpClient);
+        return await SendSearchRequestAsync(httpRequest);
     }
 
     /// <summary>
@@ -79,7 +82,7 @@ public class VkpClient
 
         // Specify patient
         httpRequest.Content = new FormUrlEncodedContent(
-                [ new KeyValuePair<string, string>("identifier", identifier) ]);
+            [new KeyValuePair<string, string>("identifier", identifier)]);
 
         return await SendSearchRequestAsync(httpRequest);
     }
@@ -98,11 +101,11 @@ public class VkpClient
 
         // Specify patient
         httpRequest.Content = new FormUrlEncodedContent(
-            [
-                new KeyValuePair<string, string>("patient.identifier", identifier),
-                new KeyValuePair<string, string>("date", "ge2024-05-17T07:08:09Z"),
-                new KeyValuePair<string, string>("date", "le2024-12-24T09:08:07Z"),
-            ]);
+        [
+            new KeyValuePair<string, string>("patient.identifier", identifier),
+            new KeyValuePair<string, string>("date", "ge2024-05-17T07:08:09Z"),
+            new KeyValuePair<string, string>("date", "le2024-12-24T09:08:07Z"),
+        ]);
 
         return await SendSearchRequestAsync(httpRequest);
     }
@@ -144,29 +147,7 @@ public class VkpClient
 
         // Specify patient
         httpRequest.Content = new FormUrlEncodedContent(
-        [ new KeyValuePair<string, string>("patient.identifier", identifier) ]);
-
-        return await SendSearchRequestAsync(httpRequest);
-    }
-
-    /// <summary>
-    /// Sends request to VKP's EpisodeOfCareSearch endpoint.
-    /// </summary>
-    /// <param name="identifier">Optional patient identifier</param>
-    /// <returns>Bundle with patient(s), or OperationOutcome in case of error.</returns>
-    public async Task<OneOf<Bundle, OperationOutcome>> EpisodeOfCareSearchAsync(string? identifier = null)
-    {
-        var httpRequest = await CreateHttpRequestMessageAsync("episodeofcare/_search");
-
-        // Specify required service codes.
-        httpRequest.Headers.Add("ServiceCodes", "rt");
-
-        // (Optional) Specify patient
-        if (identifier != null)
-        {
-            httpRequest.Content = new FormUrlEncodedContent(
-                [new KeyValuePair<string, string>("patient.identifier", identifier)]);
-        }
+            [new KeyValuePair<string, string>("patient.identifier", identifier)]);
 
         return await SendSearchRequestAsync(httpRequest);
     }
@@ -213,8 +194,6 @@ public class VkpClient
     }
 
 
-
-
     /// <summary>
     /// Creates HTTP request object, including header for the retrieved bearer token.
     /// </summary>
@@ -223,11 +202,17 @@ public class VkpClient
     private async Task<HttpRequestMessage> CreateHttpRequestMessageAsync(string apiEndpoint)
     {
         // Create request to API endpoint
-        var httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{Constants.ApiBaseUrl}/{Constants.TestOrgNumber}/{apiEndpoint}");
+        var uri = $"{Constants.ApiBaseUrl}/{Constants.TestOrgNumber}/{apiEndpoint}";
+
+        var httpRequest = new HttpRequestMessage(HttpMethod.Post, uri);
 
         // Get token and update request
-        var token = await _helseIdService.GetBearerTokenAsync();
-        httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        var accessTokenResponse = await _helseIdService.GetTokenAsync();
+        // Create and set DPoP Proof
+        var dPopProof =
+            await _dPoPProofCreatorForApiRequests.CreateDPoPProofForApiRequest(HttpMethod.Get, uri,
+                accessTokenResponse);
+        httpRequest.SetDPoPTokenAndProof(accessTokenResponse, dPopProof);
 
         return httpRequest;
     }
