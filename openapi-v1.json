@@ -1,0 +1,1633 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Knutepunkt API",
+    "description": "<h1>Velferdsteknologisk knutepunkt (VKP)</h1>\n<p>Velferdsteknologisk knutepunkt (VKP) is a service that manages the flow of information between welfare technology\n    solutions and electronic patient journals (EPJ).</p>\n<p>The service is secured with HelseID.</p>\n<p>API for sending and receiving information from EPJ systems based on FHIR R4 profiles</p>\n",
+    "contact": {
+      "name": "Velferdsteknologisk knutepunkt",
+      "url": "https://www.nhn.no/tjenester/velferdsteknologisk-knutepunkt"
+    },
+    "version": "R4"
+  },
+  "paths": {
+    "/epj/r4/{orgNo}/allergyintolerance/_search": {
+      "post": {
+        "tags": [
+          "R4"
+        ],
+        "summary": "Retrieves a patient's allergies and/or intolerances.",
+        "description": "<h3>Scope</h3>\nnhn:vkp/api/user/allergyintolerance.read\n<h3>Description</h3>\n<p>\n    Retrieves a patient's allergies and/or intolerances.\n</p>\n\n<h3>Supported EPJs</h3>\n<ul>\n    <li>Epic</li>\n</ul>\n\n<h3>Fhir-resources</h3>\n<ul>\n    <li>Bundle</li>\n    <li><a href=\"https://simplifier.net/guide/VelferdsteknologiskknutepunktVKP-R4/AllergyIntolerance?version=current\">AllergyIntolerance</a></li>\n</ul>",
+        "operationId": "Epj.R4.AllergyIntoleranceSearch",
+        "parameters": [
+          {
+            "name": "orgNo",
+            "in": "path",
+            "description": "Organization number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "serviceCodes",
+            "in": "header",
+            "description": "Specifies the service requirement for the request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "<h3>identifier</h3>\n<ul>\n    <li>Format: [system-id|]person-id</li>\n    <li>If [system-id] is omitted, it is assumed a Norwegian identification number has been submitted.</li>\n    <li>Must be valid according to the mod11-criterias.</li>\n    <li>Valid system identification:\n        <ul>\n            <li>Fødselsnummer: urn:oid:2.16.578.1.12.4.1.4.1</li>\n            <li>D-nummer: urn:oid:2.16.578.1.12.4.1.4.2</li>\n            <li>Felles-hjelpenummer: urn:oid:2.16.578.1.12.4.1.4.3</li>\n        </ul>\n    </li>\n</ul>",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "identifier": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                },
+                "examples": {
+                  "Forbidden": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"forbidden\",\n      \"details\": {\n        \"coding\": [\n          {\n            \"system\": \"http://ehelse.no/fhir/CodeSystem/vkp-operation-outcome-details\",\n            \"code\": \"1.2\",\n            \"display\": \"ikke tillatt\"\n          }\n        ]\n      },\n      \"diagnostics\": \"You are not allowed to see the information about this patient. CorrelationId: aaaaaaab-bbbb-bbbb-9b76-98587\"\n    }\n  ]\n}"
+                  },
+                  "Missing scope": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"forbidden\",\n      \"details\": {\n        \"coding\": [\n          {\n            \"system\": \"http://ehelse.no/fhir/CodeSystem/vkp-operation-outcome-details\",\n            \"code\": \"1.4\",\n            \"display\": \"ikke tilgang\"\n          }\n        ]\n      },\n      \"diagnostics\": \"Caller cannot search for EHR-information from organization 888134577. CorrelationId: aaaaaaab-bbbb-bbbb-9b76-49007\"\n    }\n  ]\n}"
+                  },
+                  "Not active": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"forbidden\",\n      \"details\": {\n        \"coding\": [\n          {\n            \"system\": \"http://ehelse.no/fhir/CodeSystem/vkp-operation-outcome-details\",\n            \"code\": \"1.1\",\n            \"display\": \"ikke aktiv\"\n          }\n        ]\n      },\n      \"diagnostics\": \"Search for EHR-data is not activated by the receiver. CorrelationId: aaaaaaab-bbbb-bbbb-9b76-56640\"\n    }\n  ]\n}"
+                  },
+                  "ServiceCodes": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"forbidden\",\n      \"details\": {\n        \"coding\": [\n          {\n            \"system\": \"http://ehelse.no/fhir/CodeSystem/vkp-operation-outcome-details\",\n            \"code\": \"1.5\",\n            \"display\": \"ikke autorisert\"\n          }\n        ]\n      },\n      \"diagnostics\": \"Caller is not authorized to use service codes: gps. CorrelationId: aaaaaaab-bbbb-bbbb-9b76-74441\"\n    }\n  ]\n}"
+                  },
+                  "Service requirement": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"forbidden\",\n      \"details\": {\n        \"coding\": [\n          {\n            \"system\": \"http://ehelse.no/fhir/CodeSystem/vkp-operation-outcome-details\",\n            \"code\": \"1.3\",\n            \"display\": \"ikke oppfylt tjenstlig behov\"\n          }\n        ]\n      },\n      \"diagnostics\": \"Patient does not have required service. CorrelationId: aaaaaaab-bbbb-bbbb-9b76-42183\"\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                },
+                "examples": {
+                  "Internal server error": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"exception\",\n      \"diagnostics\": \"Unknown exception occurred. Exception message:. CorrelationId: 123-asd-1234\"\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "bundle",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/bundle.html"
+                  }
+                },
+                "examples": {
+                  "Valid": {
+                    "value": "{\n  \"resourceType\": \"Bundle\",\n  \"id\": \"069ea1b9-0d73-445c-ad19-3253677d1bb6\",\n  \"type\": \"searchset\",\n  \"total\": 2,\n  \"entry\": [\n    {\n      \"fullUrl\": \"url\",\n      \"resource\": {\n        \"resourceType\": \"AllergyIntolerance\",\n        \"id\": \"id\",\n        \"clinicalStatus\": {\n          \"coding\": [\n            {\n              \"system\": \"http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical\",\n              \"version\": \"4.0.0\",\n              \"code\": \"inactive\",\n              \"display\": \"Inactive\"\n            }\n          ]\n        },\n        \"verificationStatus\": {\n          \"coding\": [\n            {\n              \"system\": \"http://terminology.hl7.org/CodeSystem/allergyintolerance-verification\",\n              \"version\": \"4.0.0\",\n              \"code\": \"confirmed\",\n              \"display\": \"Confirmed\"\n            }\n          ]\n        },\n        \"category\": [\n          \"biologic\"\n        ],\n        \"code\": {\n          \"text\": \"POLLEN\"\n        },\n        \"patient\": {\n          \"reference\": \"Patient/ref\",\n          \"display\": \"Vct, Randi\"\n        },\n        \"onsetPeriod\": {\n          \"start\": \"2021-12-13\"\n        },\n        \"recordedDate\": \"2022-12-13T11:52:32Z\",\n        \"reaction\": [\n          {\n            \"manifestation\": [\n              {\n                \"coding\": [\n                  {\n                    \"system\": \"http://snomed.info/sct\",\n                    \"code\": \"Anafylaksi\"\n                  }\n                ],\n                \"text\": \"Anafylaktisk reaksjon\"\n              }\n            ],\n            \"description\": \"Anafylaktisk reaksjon\",\n            \"severity\": \"severe\"\n          }\n        ]\n      },\n      \"search\": {\n        \"mode\": \"match\"\n      }\n    },\n    {\n      \"fullUrl\": \"url\",\n      \"resource\": {\n        \"resourceType\": \"AllergyIntolerance\",\n        \"id\": \"id\",\n        \"clinicalStatus\": {\n          \"coding\": [\n            {\n              \"system\": \"http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical\",\n              \"version\": \"4.0.0\",\n              \"code\": \"active\",\n              \"display\": \"Active\"\n            }\n          ]\n        },\n        \"verificationStatus\": {\n          \"coding\": [\n            {\n              \"system\": \"http://terminology.hl7.org/CodeSystem/allergyintolerance-verification\",\n              \"version\": \"4.0.0\",\n              \"code\": \"confirmed\",\n              \"display\": \"Confirmed\"\n            }\n          ]\n        },\n        \"category\": [\n          \"biologic\"\n        ],\n        \"code\": {\n          \"text\": \"Planter [GRESS]\"\n        },\n        \"patient\": {\n          \"reference\": \"Patient/ref\",\n          \"display\": \"Vct, Randi\"\n        },\n        \"onsetPeriod\": {\n          \"start\": \"2022-12-13\"\n        },\n        \"recordedDate\": \"2022-12-13T12:11:06Z\",\n        \"reaction\": [\n          {\n            \"manifestation\": [\n              {\n                \"coding\": [\n                  {\n                    \"system\": \"http://snomed.info/sct\",\n                    \"code\": \"An.reak\"\n                  }\n                ],\n                \"text\": \"Annen reaksjon\"\n              }\n            ],\n            \"description\": \"Annen reaksjon\",\n            \"severity\": \"mild\"\n          }\n        ]\n      },\n      \"search\": {\n        \"mode\": \"match\"\n      }\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                },
+                "examples": {
+                  "Invalid orgNo": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"value\",\n      \"details\": {\n        \"coding\": [\n          {\n            \"system\": \"http://ehelse.no/fhir/CodeSystem/vkp-operation-outcome-details\",\n            \"code\": \"2.2\",\n            \"display\": \"ugyldig systemidentifikator\"\n          }\n        ]\n      },\n      \"diagnostics\": \"Invalid organization number value in url-parameter. Parameter name: orgNr. CorrelationId: aaaaaaab-bbbb-bbbb-9b76-32487\"\n    }\n  ]\n}"
+                  },
+                  "Invalid ssn": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"value\",\n      \"details\": {\n        \"coding\": [\n          {\n            \"system\": \"http://ehelse.no/fhir/CodeSystem/vkp-operation-outcome-details\",\n            \"code\": \"2.1\",\n            \"display\": \"ugyldig personidentifikator\"\n          }\n        ]\n      },\n      \"diagnostics\": \"Parameter is not a valid Norwegian SSN. Parameter name: identifier. CorrelationId: aaaaaaab-bbbb-bbbb-9b76-55829\"\n    }\n  ]\n}"
+                  },
+                  "Missing servicecodes": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"required\",\n      \"details\": {\n        \"coding\": [\n          {\n            \"system\": \"http://ehelse.no/fhir/CodeSystem/vkp-operation-outcome-details\",\n            \"code\": \"1.5\",\n            \"display\": \"ikke autorisert\"\n          }\n        ]\n      },\n      \"diagnostics\": \"Missing required header value. Parameter name: ServiceCodes. CorrelationId: aaaaaaab-bbbb-bbbb-9b76-22101\"\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method Not Allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                },
+                "examples": {
+                  "Not implemented": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"not-supported\",\n      \"diagnostics\": \"Patient search is not supported for EHR-systemtype CosDoC\"\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                },
+                "examples": {
+                  "Service unavailable": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"transient\",\n      \"diagnostics\": \"Could not retrieve access token from EHR. CorrelationId: 123-asd-1234\"\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/epj/r4/{orgNo}/bundle": {
+      "post": {
+        "tags": [
+          "R4"
+        ],
+        "summary": "Journaling of patient data.",
+        "description": "<h3>Scope</h3>\nnhn:vkp/api/user/bundle.write\n<h3>Description</h3>\n<p>\n    A Bundle is a collection of other FHIR-resources, sent as one single message. A Bundle can represent different types\n    of messages, depending on the combination of FHIR resources it contains.\n</p>\n<p>\n    One specific combination of FHIR resources representing a valid VKP message contains a number of mandatory FHIR\n    resources and possibly some optional ones. Optional resources are typically used for additional information about\n    auxiliary elements, such as practitioner and device, when name/id is not sufficient.\n</p>\n<p>\n    The following resources can be contained in a valid VKP Bundle:\n</p>\n<ul>\n    <li>DetectedIssue - represents a notification/varsel from welfare technology</li>\n    <li>Composition - represent a journal note/journalnotat, typically text written by an employee/health care worker\n    </li>\n    <li>Device - sensor, camera, safety alarm etc.</li>\n    <li>Practitioner - an employee/health care worker</li>\n    <li>Encounter - the vkpEncounter profile represents a digital (camera) encounter / digitalt (kamera-) tilsyn</li>\n    <li>Observation - vital signs and other measurements / måledata. Can also represent a score/poengsum related to a\n        QuestionnaireRespone\n    </li>\n    <li>QuestionnaireResponse - the patient's response to a questionnaire / skjemabesvarelse.</li>\n</ul>\n<h3>Expected input</h3>\n<p>Messages representing various types of journal notes, written by a health care worker/employee. These must have\n    Bundle.type = Document, and the first resource must be a Composition. Optional resources are shown in\n    parentheses:\n</p>\n<ul>\n    <li>Oppfølging av varsel (notification and follow-up): DetectedIssue, Composition, (Device, Practitioner)</li>\n    <li>Oppfølging av varsel om måling (notification and follow-up on observations): DetectedIssue, Composition,\n        Observation, Practitioner\n    </li>\n    <li>Oppfølging av varsel om skjemasvarelse (notification and follow-up on questionnaire responses): DetectedIssue,\n        Composition, QuestionnaireResponse, (Observation, Practitioner)\n    </li>\n    <li>Planlagt digitalt tilsyn / kameratilsyn (planned digital encounter): Encounter, Composition, (Device,\n        Practitioner)\n    </li>\n    <li>Hendelsesbasert digitalt tilsyn / kameratilsyn (event-based digital encounter): DetectedIssue, Encounter,\n        Composition, (Device, Practitioner)\n    </li>\n    <li>Frittstående notat (standalone note): Composition, Practitioner</li>\n</ul>\n<p>\n    Messages representing only (patient reported) data. These must have Bundle.type = Collection.\n</p>\n<ul>\n    <li>Måledata - Observation(s)</li>\n</ul>\n\n<h3>Supported EPJs</h3>\n<ul>\n    <li>CosDoc</li>\n    <li>Gerica</li>\n    <li>Visma Profil</li>\n    <li>Epic</li>\n</ul>\n\n<h3>Fhir-resources</h3>\n<ul>\n    <li>Bundle</li>\n    <li>DetectedIssue - represents a notification/varsel from welfare technology</li>\n    <li>Composition - represent a journal note/journalnotat, typically text written by an employee/health care worker\n    </li>\n    <li>Device - sensor, camera, safety alarm etc.</li>\n    <li>Practitioner - an employee/health care worker</li>\n    <li>Encounter - the vkpEncounter profile represents a digital (camera) encounter / digitalt (kamera-) tilsyn</li>\n    <li>Observation - vital signs and other measurements / måledata. Can also represent a score/poengsum related to a\n        QuestionnaireResponse\n    </li>\n    <li>QuestionnaireResponse - the patient's response to a questionnaire / skjemabesvarelse.</li>\n\n</ul>",
+        "operationId": "Epj.R4.Bundle",
+        "parameters": [
+          {
+            "name": "orgNo",
+            "in": "path",
+            "description": "Organization number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "FHIR bundle",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "bundle",
+                "externalDocs": {
+                  "url": "https://www.hl7.org/fhir/bundle.html"
+                }
+              },
+              "examples": {
+                "Oppfølging av varsel fra trygghetsalarm": {
+                  "value": "{\n  \"resourceType\": \"Bundle\",\n  \"identifier\": {\n    \"system\": \"Skyresponse:GlobalAlarmId\",\n    \"value\": \"B65B90BA7EF000120240703083502\"\n  },\n  \"type\": \"document\",\n  \"timestamp\": \"2024-07-03T08:36:37.1678092+00:00\",\n  \"entry\": [\n    {\n      \"fullUrl\": \"urn:uuid:aa6d7c97-5f20-48ab-a564-8508fa302ede\",\n      \"resource\": {\n        \"resourceType\": \"Composition\",\n        \"meta\": {\n          \"profile\": [\n            \"http://ehelse.no/fhir/StructureDefinition/vkp-Composition-v090\"\n          ]\n        },\n        \"status\": \"final\",\n        \"type\": {\n          \"coding\": [\n            {\n              \"system\": \"http://ehelse.no/fhir/CodeSystem/vkp-alert-code-v090\",\n              \"code\": \"7\"\n            }\n          ],\n          \"text\": \"Trygghetsalarm\"\n        },\n        \"category\": [\n          {\n            \"coding\": [\n              {\n                \"system\": \"http://ehelse.no/fhir/CodeSystem/vkp-composition-category-v090\",\n                \"code\": \"1\"\n              }\n            ]\n          }\n        ],\n        \"subject\": {\n          \"identifier\": {\n            \"system\": \"http://cosdoc.dips.no/lopenummer\",\n            \"value\": \"1302\"\n          }\n        },\n        \"date\": \"2024-07-03T08:36:37Z\",\n        \"author\": [\n          {\n            \"identifier\": {\n              \"system\": \"Skyresponse:Admin:UserName\",\n              \"value\": \"kbf@trondheim\"\n            },\n            \"display\": \"Kristian Fougner\"\n          }\n        ],\n        \"title\": \"Alarm id: B65B90BA7EF000120240703083502\",\n        \"event\": [\n          {\n            \"code\": [\n              {\n                \"coding\": [\n                  {\n                    \"system\": \"http://ehelse.no/fhir/CodeSystem/vkp-composition-event-v090\",\n                    \"code\": \"0\"\n                  }\n                ]\n              }\n            ],\n            \"period\": {\n              \"start\": \"2024-07-03T08:35:32Z\"\n            }\n          },\n          {\n            \"code\": [\n              {\n                \"coding\": [\n                  {\n                    \"system\": \"http://ehelse.no/fhir/CodeSystem/vkp-composition-event-v090\",\n                    \"code\": \"1\"\n                  }\n                ],\n                \"text\": \"kbf@trondheim\"\n              }\n            ],\n            \"period\": {\n              \"start\": \"2024-07-03T08:35:39Z\"\n            }\n          },\n          {\n            \"code\": [\n              {\n                \"coding\": [\n                  {\n                    \"system\": \"http://ehelse.no/fhir/CodeSystem/vkp-composition-event-v090\",\n                    \"code\": \"3\"\n                  }\n                ],\n                \"text\": \"kbf@trondheim\"\n              }\n            ],\n            \"period\": {\n              \"start\": \"2024-07-03T08:36:23Z\"\n            }\n          }\n        ],\n        \"section\": [\n          {\n            \"title\": \"Alarm info\",\n            \"code\": {\n              \"coding\": [\n                {\n                  \"system\": \"http://ehelse.no/fhir/CodeSystem/vkp-composition-section-v090\",\n                  \"code\": \"2\"\n                }\n              ]\n            },\n            \"text\": {\n              \"status\": \"generated\",\n              \"div\": \"<div xmlns=\\\"http://www.w3.org/1999/xhtml\\\">GlobalAlarmId: B65B90BA7EF000120240703083502.</div>\"\n            },\n            \"orderedBy\": {\n              \"coding\": [\n                {\n                  \"system\": \"Skyresponse:timestamp\",\n                  \"code\": \"2024-07-03T08:35:32\"\n                }\n              ]\n            },\n            \"entry\": [\n              {\n                \"reference\": \"urn:uuid:8db10249-9139-43a8-9e19-4bc9619aaddc\"\n              }\n            ]\n          },\n          {\n            \"title\": \"Alarm location\",\n            \"code\": {\n              \"coding\": [\n                {\n                  \"system\": \"http://ehelse.no/fhir/CodeSystem/vkp-composition-section-v090\",\n                  \"code\": \"2\"\n                }\n              ]\n            },\n            \"text\": {\n              \"status\": \"generated\",\n              \"div\": \"<div xmlns=\\\"http://www.w3.org/1999/xhtml\\\">Siste kjente sted: POE_001d940dfec5</div>\"\n            },\n            \"orderedBy\": {\n              \"coding\": [\n                {\n                  \"system\": \"Skyresponse:timestamp\",\n                  \"code\": \"2024-07-03T08:35:36\"\n                }\n              ]\n            },\n            \"entry\": [\n              {\n                \"reference\": \"urn:uuid:8db10249-9139-43a8-9e19-4bc9619aaddc\"\n              }\n            ]\n          }\n        ]\n      }\n    },\n    {\n      \"fullUrl\": \"urn:uuid:8db10249-9139-43a8-9e19-4bc9619aaddc\",\n      \"resource\": {\n        \"resourceType\": \"DetectedIssue\",\n        \"meta\": {\n          \"profile\": [\n            \"http://ehelse.no/fhir/StructureDefinition/vkp-DetectedIssue-v090\"\n          ]\n        },\n        \"status\": \"final\",\n        \"code\": {\n          \"coding\": [\n            {\n              \"system\": \"http://ehelse.no/fhir/CodeSystem/vkp-alert-code-v090\",\n              \"code\": \"7\"\n            }\n          ],\n          \"text\": \"300 - Trygghetsalarm\"\n        },\n        \"patient\": {\n          \"identifier\": {\n            \"system\": \"http://cosdoc.dips.no/lopenummer\",\n            \"value\": \"1302\"\n          }\n        },\n        \"identifiedDateTime\": \"2024-07-03T08:35:32Z\",\n        \"author\": {\n          \"reference\": \"urn:uuid:36f4fcb1-1d2f-43d3-b267-301a3f0d348a\"\n        }\n      }\n    },\n    {\n      \"fullUrl\": \"urn:uuid:36f4fcb1-1d2f-43d3-b267-301a3f0d348a\",\n      \"resource\": {\n        \"resourceType\": \"Device\",\n        \"identifier\": [\n          {\n            \"system\": \"https://fhir.vkp.com/system-codes/IMEI\",\n            \"value\": \"\"\n          },\n          {\n            \"system\": \"Skyresponse:TransmitterIdentifier\",\n            \"value\": \"C02_00867G_0_4627\"\n          }\n        ],\n        \"serialNumber\": \"C02_00756d_0_4627\",\n        \"deviceName\": [\n          {\n            \"name\": \"GPT3-WTRSB\",\n            \"type\": \"model-name\"\n          }\n        ],\n        \"type\": {\n          \"coding\": [\n            {\n              \"system\": \"Skyresponse:productId\",\n              \"code\": \"136\"\n            }\n          ]\n        },\n        \"owner\": {\n          \"display\": \"Trondheim Kommune-Trondheim kommune Trygghetsalarmer\"\n        }\n      }\n    }\n  ]\n}"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Indicates insufficient rights to perform the requested operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                },
+                "examples": {
+                  "Missing scope": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"forbidden\",\n      \"diagnostics\": \"Caller is not authorized to journal message in org.nr 123456789 EHR-system. CorrelationId: 123-asd-1234\"\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                },
+                "examples": {
+                  "Internal server error": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"exception\",\n      \"diagnostics\": \"Unknown exception occurred. Exception message:. CorrelationId: 123-asd-1234\"\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                },
+                "examples": {
+                  "OperationOutcome": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"value\",\n      \"details\": {\n        \"coding\": [\n          {\n            \"system\": \"http://ehelse.no/fhir/CodeSystem/vkp-operation-outcome-details\",\n            \"code\": \"2.2\",\n            \"display\": \"ugyldig systemidentifikator\"\n          }\n        ]\n      },\n      \"diagnostics\": \"Invalid organization number value in url-parameter. Parameter name: orgNr. CorrelationId: aaaaaaab-bbbb-bbbb-9b76-32487\"\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "If the <code>Accept</code>-header isn't set, text/plain will be returned.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Validated ok": {
+                    "value": "{\n  \"messageId\": \"b008e424-f548-4c26-a150-ed0602130332\"\n}"
+                  }
+                }
+              },
+              "text/plain": {
+                "examples": {
+                  "Validated ok": {
+                    "value": "b008e424-f548-4c26-a150-ed0602130332"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/epj/r4/{orgNo}/careplan/_search": {
+      "post": {
+        "tags": [
+          "R4"
+        ],
+        "summary": "Retrieves a patient's visitation schedule.",
+        "description": "<h3>Scope</h3>\nnhn:vkp/api/user/careplan.read\n<h3>Description</h3>\n<p>\n    Retrieve visitation schedule for a patient in a specified time period, i.e. completed, ongoing and planned\n    physical visits.\n    </p>\n<p>\n    In Visma Profil it is possible to set a limit for how many hours forwards and back in time external parties are\n    allowed to retrieve visits from. If these limits are activated in Profil they will override any parameters that\n    exceed the number of hours sent to VKP.\n</p>\n<p>\n    Tieto Gerica currently only returns ongoing and planned visitis, completed visitis are not returned.\n</p>\n\n<h3>Supported EPJs</h3>\n<ul>\n    <li>CosDoc</li>\n    <li>Gerica</li>\n    <li>Visma Profil</li>\n    <li>Epic</li>\n</ul>\n\n<h3>Fhir-resources</h3>\n<ul>\n    <li>Bundle</li>\n    <li>CarePlan</li>\n   \n</ul>",
+        "operationId": "Epj.R4.CarePlanSearch",
+        "parameters": [
+          {
+            "name": "orgNo",
+            "in": "path",
+            "description": "Organization number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "serviceCodes",
+            "in": "header",
+            "description": "Specifies the service requirement for the request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "<p>The patient.identifier parameter must be a valid norwegian national identity number.</p>\n<p>The date parameter must consist of two values, a from date and a to date. </p>\n\n<h3>date</h3>\n<ul>\n    <li>Format: [prefix]yyyy-mm-ddThh:mm:ss[.mmm][Z|(+|-)hh:mm]</li>\n    <li>From date prefix: gt, ge, sa</li>\n    <li>To date prefix: lt, le, eb</li>\n</ul>\nMore information here: https://www.hl7.org/fhir/search.html#prefix\n<h3>patient.identifier</h3>\n<ul>\n    <li>Format: [system-id|]person-id</li>\n    <li>If [system-id] is omitted, it is assumed a norwegian identification number has been submitted.</li>\n    <li>Must be valid according to the mod11-criterias.</li>\n    <li>Valid system identification:\n        <ul>\n            <li>Fødselsnummer: urn:oid:2.16.578.1.12.4.1.4.1</li>\n            <li>D-nummer: urn:oid:2.16.578.1.12.4.1.4.2</li>\n            <li>Felles-hjelpenummer: urn:oid:2.16.578.1.12.4.1.4.3</li>\n        </ul>\n    </li>\n</ul>\n\n<code>patient.identifier=13116900216&date=ge2021-01-02T07:51:01Z&date=le2021-01-04T08:00:00Z</code>\n",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "patient.identifier": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "date": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                ]
+              },
+              "encoding": {
+                "date": {
+                  "style": "form",
+                  "explode": true
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                },
+                "examples": {
+                  "Internal server error": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"exception\",\n      \"diagnostics\": \"Unknown exception occurred. Exception message:. CorrelationId: 123-asd-1234\"\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "bundle",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/bundle.html"
+                  }
+                },
+                "examples": {
+                  "Valid": {
+                    "value": "{\n  \"resourceType\": \"Bundle\",\n  \"id\": \"069ea1b9-0d73-445c-ad19-3253677d1bb6\",\n  \"type\": \"searchset\",\n  \"total\": 1,\n  \"entry\": [\n    {\n      \"resource\": {\n        \"resourceType\": \"CarePlan\",\n        \"status\": \"active\",\n        \"intent\": \"proposal\",\n        \"category\": [\n          {\n            \"coding\": [\n              {\n                \"system\": \"http://ehelse.no/fhir/CodeSystem/vkp-careplan-category-v06\",\n                \"code\": \"3\",\n                \"display\": \"besoksplan\"\n              }\n            ]\n          }\n        ],\n        \"subject\": {\n          \"identifier\": {\n            \"system\": \"urn:oid:2.16.578.1.12.4.1.4.1\",\n            \"value\": \"13116900216\"\n          }\n        },\n        \"period\": {\n          \"start\": \"2021-02-11T01:02:01Z\",\n          \"end\": \"2021-02-13T01:00:01Z\"\n        },\n        \"activity\": [\n          {\n            \"detail\": {\n              \"kind\": \"Appointment\",\n              \"status\": \"completed\",\n              \"scheduledPeriod\": {\n                \"start\": \"2021-02-12T13:00:00Z\",\n                \"end\": \"2021-02-12T14:00:00Z\"\n              },\n              \"description\": \"Direkte hjelp i huset\"\n            }\n          },\n          {\n            \"detail\": {\n              \"kind\": \"Appointment\",\n              \"status\": \"in-progress\",\n              \"scheduledPeriod\": {\n                \"start\": \"2021-02-12T14:15:00Z\",\n                \"end\": \"2021-02-12T14:45:00Z\"\n              },\n              \"description\": \"Direkte hjelp i huset\"\n            }\n          },\n          {\n            \"detail\": {\n              \"kind\": \"Appointment\",\n              \"status\": \"scheduled\",\n              \"scheduledPeriod\": {\n                \"start\": \"2021-02-12T15:00:00Z\",\n                \"end\": \"2021-02-12T16:00:00Z\"\n              },\n              \"description\": \"Direkte hjelp i huset\"\n            }\n          }\n        ]\n      },\n      \"search\": {\n        \"mode\": \"match\"\n      }\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                },
+                "examples": {
+                  "Invalid date format": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"value\",\n      \"diagnostics\": \"Could not parse parameter, expected format is yyyy-mm-ddThh:mm:ss[.mmm][Z|(+|-)hh:mm]. Parameter name: date. CorrelationID: 9da9b02d-0c86-4a96-b4a1-9a2a76875799\"\n    }\n  ]\n}"
+                  },
+                  "Invalid date parameters": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"value\",\n      \"diagnostics\": \"Invalid parameter count. Expected 1 instances, found 0. Parameter name: date (start). CorrelationID: 2a9e2a0e-a483-4e76-b22d-be0b9a093fd1\"\n    }\n  ]\n}"
+                  },
+                  "Invalid orgNo": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"value\",\n      \"diagnostics\": \"Invalid OrgNr value in url-parameter. Parameter name: orgnr. CorrelationID: 60eed51d-04a9-4a61-b6da-b13316ee7469\"\n    }\n  ]\n}"
+                  },
+                  "Invalid request body": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"invalid\",\n      \"diagnostics\": \"Empty or invalid request body or content-type. CorrelationID: ee079711-88b2-422b-b4f2-ef8d91dd89da\"\n    }\n  ]\n}"
+                  },
+                  "Invalid ssn": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"value\",\n      \"diagnostics\": \"Parameter is not a valid Norwegian SSN. Parameter name: patient.identifier. CorrelationId: 304648d4-5283-41de-883d-412b90086d8f\"\n    }\n  ]\n}"
+                  },
+                  "Missing servicecodes": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"required\",\n      \"diagnostics\": \"Missing required header value. Parameter name: ServiceCodes. CorrelationId: 123-asd-1234\"\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method Not Allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/epj/r4/{orgNo}/composition": {
+      "post": {
+        "tags": [
+          "R4"
+        ],
+        "summary": "Journaling of patient data.",
+        "description": "<h3>Scope</h3>\nnhn:vkp/api/user/composition.write\n<h3>Description</h3>\n<p>\n    A Composition represents a standalone note / frittstående notat and is used to send a journal note without any other\n    context (such as Practitioner or DetectedIssue). If a Practitioner resource is needed to represent more information\n    about the author or any other resources are needed to represent context, a Bundle interface must be used.\n</p>\n\n\n<h3>Supported EPJs</h3>\n<ul>\n    <li>CosDoc</li>\n    <li>Gerica</li>\n    <li>Visma Profil</li>\n    <li>Epic</li>\n</ul>\n\n<h3>Fhir-resources</h3>\n<ul>\n    <li>Composition</li>\n\n</ul>",
+        "operationId": "Epj.R4.Composition",
+        "parameters": [
+          {
+            "name": "orgNo",
+            "in": "path",
+            "description": "Organization number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/epj/r4/{orgNo}/composition/_search": {
+      "post": {
+        "tags": [
+          "R4"
+        ],
+        "summary": "Retrieves an action plan associated with a patient.",
+        "description": "<h3>Scope</h3>\nnhn:vkp/api/user/composition.read\n<h3>Description</h3>\n<p>\n    Retrieves an action plan (Tiltaksplan) associated with a specific patient.\n</p>\n\n<h3>Supported EPJs</h3>\n<ul>\n    <li>CosDoc</li>\n</ul>\n\n<h3>Fhir-resources</h3>\n<ul>\n    <li>Bundle</li>\n    <li>Composition - represent a journal note/journalnotat, typically text written by an employee/health care worker\n    </li>\n\n</ul>",
+        "operationId": "Epj.R4.CompositionSearch",
+        "parameters": [
+          {
+            "name": "orgNo",
+            "in": "path",
+            "description": "Organization number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "serviceCodes",
+            "in": "header",
+            "description": "Specifies the service requirement for the request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "<p>Search parameters must be application/x-www-form-urlencoded.</p>\n<h3>date</h3>\n<ul>\n    <li>Format: [prefix]yyyy-mm-ddThh:mm:ss[.mmm][Z|(+|-)hh:mm]</li>\n    <li>From date prefix: gt, ge, sa</li>\n    <li>To date prefix: lt, le, eb</li>\n</ul>\n<h3>patient.identifier</h3>\n<ul>\n    <li>Format: [system-id|]person-id</li>\n    <li>If [system-id] is omitted, it is assumed a norwegian identification number has been submitted.</li>\n    <li>Must be valid according to the mod11-criterias.</li>\n    <li>Valid system identification:\n        <ul>\n            <li>Fødselsnummer: urn:oid:2.16.578.1.12.4.1.4.1</li>\n            <li>D-nummer: urn:oid:2.16.578.1.12.4.1.4.2</li>\n            <li>Felles-hjelpenummer: urn:oid:2.16.578.1.12.4.1.4.3</li>\n        </ul>\n    </li>\n</ul>\n",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "patient.identifier": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "date": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                ]
+              },
+              "encoding": {
+                "date": {
+                  "style": "form",
+                  "explode": true
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                },
+                "examples": {
+                  "Internal server error": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"exception\",\n      \"diagnostics\": \"Unknown exception occurred. Exception message:. CorrelationId: 123-asd-1234\"\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "bundle",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/bundle.html"
+                  }
+                },
+                "examples": {
+                  "Valid": {
+                    "value": "{\n  \"resourceType\": \"Bundle\",\n  \"id\": \"069ea1b9-0d73-445c-ad19-3253677d1bb6\",\n  \"type\": \"searchset\",\n  \"entry\": [\n    {\n      \"fullUrl\": \"urn:uuid:6773b5cb-f72a-493f-90b3-10a8c9e13398\",\n      \"resource\": {\n        \"resourceType\": \"Composition\",\n        \"id\": \"6773b5cb-f72a-493f-90b3-10a8c9e13398\",\n        \"type\": {\n          \"coding\": [\n            {\n              \"system\": \"http://ehelse.no/fhir/CodeSystem/vkp-composition-category-v090\",\n              \"code\": \"3\",\n              \"display\": \"tiltaksplan\"\n            }\n          ]\n        },\n        \"section\": [\n          {\n            \"title\": \"Problem/Ressurs/Behov\",\n            \"text\": {\n              \"div\": \"ny notat\"\n            },\n            \"section\": [\n              {\n                \"title\": \"Mål\",\n                \"text\": {\n                  \"div\": \"ny notat\"\n                },\n                \"section\": [\n                  {\n                    \"title\": \"Tiltak\",\n                    \"text\": {\n                      \"div\": \"ny notat\"\n                    }\n                  }\n                ]\n              }\n            ]\n          }\n        ]\n      },\n      \"search\": {\n        \"mode\": \"match\"\n      }\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                },
+                "examples": {
+                  "Invalid date format": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"value\",\n      \"diagnostics\": \"Could not parse parameter, expected format is yyyy-mm-ddThh:mm:ss[.mmm][Z|(+|-)hh:mm]. Parameter name: date. CorrelationID: 9da9b02d-0c86-4a96-b4a1-9a2a76875799\"\n    }\n  ]\n}"
+                  },
+                  "Invalid date parameters": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"value\",\n      \"diagnostics\": \"Invalid parameter count. Expected 1 instances, found 0. Parameter name: date (start). CorrelationID: 2a9e2a0e-a483-4e76-b22d-be0b9a093fd1\"\n    }\n  ]\n}"
+                  },
+                  "Invalid orgNo": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"value\",\n      \"diagnostics\": \"Invalid OrgNr value in url-parameter. Parameter name: orgnr. CorrelationID: 60eed51d-04a9-4a61-b6da-b13316ee7469\"\n    }\n  ]\n}"
+                  },
+                  "Invalid request body": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"invalid\",\n      \"diagnostics\": \"Empty or invalid request body or content-type. CorrelationID: ee079711-88b2-422b-b4f2-ef8d91dd89da\"\n    }\n  ]\n}"
+                  },
+                  "Invalid ssn": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"value\",\n      \"diagnostics\": \"Parameter is not a valid Norwegian SSN. Parameter name: patient.identifier. CorrelationId: 304648d4-5283-41de-883d-412b90086d8f\"\n    }\n  ]\n}"
+                  },
+                  "Missing servicecodes": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"required\",\n      \"diagnostics\": \"Missing required header value. Parameter name: ServiceCodes. CorrelationId: 123-asd-1234\"\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method Not Allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/epj/r4/{orgNo}/condition/_search": {
+      "post": {
+        "tags": [
+          "R4"
+        ],
+        "summary": "Retrieves information about the patient's diagnoses.",
+        "description": "<h3>Scope</h3>\nnhn:vkp/api/user/condition.read\n<h3>Description</h3>\n<p>\n    Retrieves information about the patient's diagnoses. \n</p>\n\n<h3>Supported EPJs</h3>\n<ul>\n    <li>Epic</li>\n</ul>\n\n<h3>Fhir-resources</h3>\n<ul>\n    <li>Bundle</li>\n    <li>Condition    </li>\n\n</ul>",
+        "operationId": "Epj.R4.ConditionSearch",
+        "parameters": [
+          {
+            "name": "orgNo",
+            "in": "path",
+            "description": "Organization number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "serviceCodes",
+            "in": "header",
+            "description": "Specifies the service requirement for the request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "<h3>patient.identifier</h3>\n<ul>\n    <li>Format: [system-id|]person-id</li>\n    <li>If [system-id] is omitted, it is assumed a norwegian identification number has been submitted.</li>\n    <li>Must be valid according to the mod11-criterias.</li>\n    <li>Valid system identification:\n        <ul>\n            <li>Fødselsnummer: urn:oid:2.16.578.1.12.4.1.4.1</li>\n            <li>D-nummer: urn:oid:2.16.578.1.12.4.1.4.2</li>\n            <li>Felles-hjelpenummer: urn:oid:2.16.578.1.12.4.1.4.3</li>\n        </ul>\n    </li>\n</ul>\n",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "patient.identifier": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                },
+                "examples": {
+                  "Internal server error": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"exception\",\n      \"diagnostics\": \"Unknown exception occurred. Exception message:. CorrelationId: 123-asd-1234\"\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "bundle",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/bundle.html"
+                  }
+                },
+                "examples": {
+                  "Valid": {
+                    "value": "{\n  \"resourceType\": \"Bundle\",\n  \"id\": \"8227af39-46f9-44b4-b212-8d2d6da2a5e9\",\n  \"type\": \"searchset\",\n  \"total\": 3,\n  \"entry\": [\n    {\n      \"fullUrl\": \"e6KVIyZBlES1KotqFzA-HHw3\",\n      \"resource\": {\n        \"resourceType\": \"Condition\",\n        \"id\": \"e6KVIyZBlES1KotqFzA-HHw3\",\n        \"clinicalStatus\": {\n          \"coding\": [\n            {\n              \"system\": \"http://terminology.hl7.org/CodeSystem/condition-clinical\",\n              \"version\": \"4.0.0\",\n              \"code\": \"active\",\n              \"display\": \"Active\"\n            }\n          ],\n          \"text\": \"Active\"\n        },\n        \"verificationStatus\": {\n          \"coding\": [\n            {\n              \"system\": \"http://terminology.hl7.org/CodeSystem/condition-ver-status\",\n              \"version\": \"4.0.0\",\n              \"code\": \"confirmed\",\n              \"display\": \"Confirmed\"\n            }\n          ],\n          \"text\": \"Confirmed\"\n        },\n        \"category\": [\n          {\n            \"coding\": [\n              {\n                \"system\": \"http://terminology.hl7.org/CodeSystem/condition-category\",\n                \"code\": \"problem-list-item\",\n                \"display\": \"Problem List Item\"\n              }\n            ],\n            \"text\": \"Problem List Item\"\n          },\n          {\n            \"coding\": [\n              {\n                \"system\": \"http://loinc.org\",\n                \"code\": \"75310-3\",\n                \"display\": \"Health concerns Document\"\n              },\n              {\n                \"system\": \"http://hl7.org/fhir/us/core/CodeSystem/condition-category\",\n                \"code\": \"health-concern\",\n                \"display\": \"Health Concern\"\n              }\n            ],\n            \"text\": \"Health Concern\"\n          }\n        ],\n        \"code\": {\n          \"coding\": [\n            {\n              \"code\": \"E14.9\",\n              \"display\": \"Uspesifisert diabetes mellitus uten komplikasjoner\"\n            },\n            {\n              \"system\": \"http://snomed.info/sct\",\n              \"code\": \"73211009\",\n              \"display\": \"Diabetes\"\n            }\n          ],\n          \"text\": \"Diabetes\"\n        },\n        \"subject\": {\n          \"reference\": \"Patient/eXWkV7zneyPbReoq3zmnoUQ3\",\n          \"display\": \"Bca, Trygghetspatruljen\"\n        },\n        \"onsetDateTime\": \"2023-11-28\",\n        \"recordedDate\": \"2023-11-28\",\n        \"note\": [\n          {\n            \"text\": \"TEST COMMENT #2\"\n          }\n        ]\n      },\n      \"search\": {\n        \"mode\": \"match\"\n      }\n    },\n    {\n      \"fullUrl\": \"e6NJTtF2jB5oJn-UF0Xacsw3\",\n      \"resource\": {\n        \"resourceType\": \"Condition\",\n        \"id\": \"e6NJTtF2jB5oJn-UF0Xacsw3\",\n        \"clinicalStatus\": {\n          \"coding\": [\n            {\n              \"system\": \"http://terminology.hl7.org/CodeSystem/condition-clinical\",\n              \"version\": \"4.0.0\",\n              \"code\": \"active\",\n              \"display\": \"Active\"\n            }\n          ],\n          \"text\": \"Active\"\n        },\n        \"verificationStatus\": {\n          \"coding\": [\n            {\n              \"system\": \"http://terminology.hl7.org/CodeSystem/condition-ver-status\",\n              \"version\": \"4.0.0\",\n              \"code\": \"confirmed\",\n              \"display\": \"Confirmed\"\n            }\n          ],\n          \"text\": \"Confirmed\"\n        },\n        \"category\": [\n          {\n            \"coding\": [\n              {\n                \"system\": \"http://terminology.hl7.org/CodeSystem/condition-category\",\n                \"code\": \"problem-list-item\",\n                \"display\": \"Problem List Item\"\n              }\n            ],\n            \"text\": \"Problem List Item\"\n          },\n          {\n            \"coding\": [\n              {\n                \"system\": \"http://loinc.org\",\n                \"code\": \"75310-3\",\n                \"display\": \"Health concerns Document\"\n              },\n              {\n                \"system\": \"http://hl7.org/fhir/us/core/CodeSystem/condition-category\",\n                \"code\": \"health-concern\",\n                \"display\": \"Health Concern\"\n              }\n            ],\n            \"text\": \"Health Concern\"\n          }\n        ],\n        \"code\": {\n          \"coding\": [\n            {\n              \"code\": \"Z88.8\",\n              \"display\": \"Oppl. om all. mot a. spes.legem./biol. stoff, egen sykehist.\"\n            },\n            {\n              \"system\": \"http://snomed.info/sct\",\n              \"code\": \"773399002\",\n              \"display\": \"Allergi Mot Acetylkolin\"\n            }\n          ],\n          \"text\": \"Allergi mot acetylkolin\"\n        },\n        \"subject\": {\n          \"reference\": \"Patient/eXWkV7zneyPbReoq3zmnoUQ3\",\n          \"display\": \"Bca, Trygghetspatruljen\"\n        },\n        \"onsetDateTime\": \"2023-11-28\",\n        \"recordedDate\": \"2023-11-28\",\n        \"note\": [\n          {\n            \"text\": \"TEST COMMENT\"\n          }\n        ]\n      },\n      \"search\": {\n        \"mode\": \"match\"\n      }\n    },\n    {\n      \"fullUrl\": \"eUYypVMkV98MSIUmLgOr3yg3\",\n      \"resource\": {\n        \"resourceType\": \"Condition\",\n        \"id\": \"eUYypVMkV98MSIUmLgOr3yg3\",\n        \"clinicalStatus\": {\n          \"coding\": [\n            {\n              \"system\": \"http://terminology.hl7.org/CodeSystem/condition-clinical\",\n              \"version\": \"4.0.0\",\n              \"code\": \"active\",\n              \"display\": \"Active\"\n            }\n          ],\n          \"text\": \"Active\"\n        },\n        \"verificationStatus\": {\n          \"coding\": [\n            {\n              \"system\": \"http://terminology.hl7.org/CodeSystem/condition-ver-status\",\n              \"version\": \"4.0.0\",\n              \"code\": \"confirmed\",\n              \"display\": \"Confirmed\"\n            }\n          ],\n          \"text\": \"Confirmed\"\n        },\n        \"category\": [\n          {\n            \"coding\": [\n              {\n                \"system\": \"http://terminology.hl7.org/CodeSystem/condition-category\",\n                \"code\": \"problem-list-item\",\n                \"display\": \"Problem List Item\"\n              }\n            ],\n            \"text\": \"Problem List Item\"\n          },\n          {\n            \"coding\": [\n              {\n                \"system\": \"http://loinc.org\",\n                \"code\": \"75310-3\",\n                \"display\": \"Health concerns Document\"\n              },\n              {\n                \"system\": \"http://hl7.org/fhir/us/core/CodeSystem/condition-category\",\n                \"code\": \"health-concern\",\n                \"display\": \"Health Concern\"\n              }\n            ],\n            \"text\": \"Health Concern\"\n          }\n        ],\n        \"code\": {\n          \"coding\": [\n            {\n              \"code\": \"G20\",\n              \"display\": \"Parkinsons sykdom\"\n            },\n            {\n              \"code\": \"F02.3\",\n              \"display\": \"Demens ved Parkinsons sykdom\"\n            },\n            {\n              \"system\": \"http://snomed.info/sct\",\n              \"code\": \"425390006\",\n              \"display\": \"Demens Assosiert Med Parkinsons Sykdom\"\n            }\n          ],\n          \"text\": \"Demens assosiert med Parkinsons sykdom\"\n        },\n        \"subject\": {\n          \"reference\": \"Patient/eXWkV7zneyPbReoq3zmnoUQ3\",\n          \"display\": \"Bca, Trygghetspatruljen\"\n        },\n        \"onsetDateTime\": \"2023-11-28\",\n        \"recordedDate\": \"2023-11-28\"\n      },\n      \"search\": {\n        \"mode\": \"match\"\n      }\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                },
+                "examples": {
+                  "Invalid orgNo": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"value\",\n      \"details\": {\n        \"coding\": [\n          {\n            \"system\": \"http://ehelse.no/fhir/CodeSystem/vkp-operation-outcome-details\",\n            \"code\": \"2.2\",\n            \"display\": \"ugyldig systemidentifikator\"\n          }\n        ]\n      },\n      \"diagnostics\": \"Invalid organization number value in url-parameter. Parameter name: orgNr. CorrelationId: aaaaaaab-bbbb-bbbb-9b76-32487\"\n    }\n  ]\n}"
+                  },
+                  "Invalid ssn": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"value\",\n      \"diagnostics\": \"Parameter is not a valid Norwegian SSN. Parameter name: patient.identifier. CorrelationId: 304648d4-5283-41de-883d-412b90086d8f\"\n    }\n  ]\n}"
+                  },
+                  "Missing servicecodes": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"required\",\n      \"diagnostics\": \"Missing required header value. Parameter name: ServiceCodes. CorrelationId: 123-asd-1234\"\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method Not Allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                },
+                "examples": {
+                  "Not implemented": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"not-supported\",\n      \"diagnostics\": \"Patient search is not supported for EHR-systemtype CosDoC\"\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                },
+                "examples": {
+                  "Service unavailable": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"transient\",\n      \"diagnostics\": \"Could not retrieve access token from EHR. CorrelationId: 123-asd-1234\"\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/epj/r4/{orgNo}/episodeofcare/_search": {
+      "post": {
+        "tags": [
+          "R4"
+        ],
+        "summary": "Retrieves health care services.",
+        "description": "<h3>Scope</h3>\nnhn:vkp/api/user/episodeofcare.read\n<h3>Description</h3>\n<p>\n    Retrieves health care services (tjenester) for one or more patients.\n    Returns a Bundle containing a list of EpisodeOfCare resources, representing services. For each EpisodeOfCare, the\n    field patient.identifier is included.\n</p>\n<p>\n    If _include is set to EpisodeOfCare:patient, information about the patients are also returned. Each patient is\n    returned using the VkpPatients profile.\n</p>\n\n<h3>Supported EPJ's</h3>\n<ul>\n    <li>CosDoc</li>\n    <li>Gerica</li>\n    <li>Visma Profil</li>\n    <li>Epic</li>\n</ul>\n\n<h3>Fhir-resources</h3>\n<ul>\n    <li>Bundle</li>\n    <li>Condition</li>\n\n</ul>",
+        "operationId": "Epj.R4.EpisodeOfCareSearch",
+        "parameters": [
+          {
+            "name": "orgNo",
+            "in": "path",
+            "description": "Organization number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "serviceCodes",
+            "in": "header",
+            "description": "Specifies the service requirement for the request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "<p>patient.identifier is optional.</p>\n<p>\n    If patient.identifier is specified, the search will be performed using the identifier.\n</p>\n<ul>\n    <li>Format: [system-id|]person-id</li>\n    <li>If [system-id] is omitted, it is assumed a norwegian identification number has been submitted.</li>\n    <li>Must be valid according to the mod11-criterias.</li>\n    <li>Valid system identification:\n        <ul>\n            <li>Fødselsnummer: urn:oid:2.16.578.1.12.4.1.4.1</li>\n            <li>D-nummer: urn:oid:2.16.578.1.12.4.1.4.2</li>\n            <li>Felles-hjelpenummer: urn:oid:2.16.578.1.12.4.1.4.3</li>\n            <li>http://gerica.tietoevry.no/lopenummer</li>\n            <li>http://profil.visma.no/lopenummer</li>\n            <li>http://cosdoc.dips.no/lopenummer\n        </ul>\n    </li>\n</ul>",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "patient.identifier": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "organization.identifier": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "_include": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                ]
+              },
+              "encoding": {
+                "organization.identifier": {
+                  "style": "form",
+                  "explode": true
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                },
+                "examples": {
+                  "Forbidden": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"forbidden\",\n      \"details\": {\n        \"coding\": [\n          {\n            \"system\": \"http://ehelse.no/fhir/CodeSystem/vkp-operation-outcome-details\",\n            \"code\": \"1.2\",\n            \"display\": \"ikke tillatt\"\n          }\n        ]\n      },\n      \"diagnostics\": \"You are not allowed to see the information about this patient. CorrelationId: aaaaaaab-bbbb-bbbb-9b76-98587\"\n    }\n  ]\n}"
+                  },
+                  "Missing scope": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"forbidden\",\n      \"details\": {\n        \"coding\": [\n          {\n            \"system\": \"http://ehelse.no/fhir/CodeSystem/vkp-operation-outcome-details\",\n            \"code\": \"1.4\",\n            \"display\": \"ikke tilgang\"\n          }\n        ]\n      },\n      \"diagnostics\": \"Caller cannot search for EHR-information from organization 888134577. CorrelationId: aaaaaaab-bbbb-bbbb-9b76-49007\"\n    }\n  ]\n}"
+                  },
+                  "Not active": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"forbidden\",\n      \"details\": {\n        \"coding\": [\n          {\n            \"system\": \"http://ehelse.no/fhir/CodeSystem/vkp-operation-outcome-details\",\n            \"code\": \"1.1\",\n            \"display\": \"ikke aktiv\"\n          }\n        ]\n      },\n      \"diagnostics\": \"Search for EHR-data is not activated by the receiver. CorrelationId: aaaaaaab-bbbb-bbbb-9b76-56640\"\n    }\n  ]\n}"
+                  },
+                  "Service requirement": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"forbidden\",\n      \"details\": {\n        \"coding\": [\n          {\n            \"system\": \"http://ehelse.no/fhir/CodeSystem/vkp-operation-outcome-details\",\n            \"code\": \"1.3\",\n            \"display\": \"ikke oppfylt tjenstlig behov\"\n          }\n        ]\n      },\n      \"diagnostics\": \"Patient does not have required service. CorrelationId: aaaaaaab-bbbb-bbbb-9b76-42183\"\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                },
+                "examples": {
+                  "Internal server error": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"exception\",\n      \"diagnostics\": \"Unknown exception occurred. Exception message:. CorrelationId: 123-asd-1234\"\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "bundle",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/bundle.html"
+                  }
+                },
+                "examples": {
+                  "Multiple": {
+                    "value": "{\n  \"resourceType\": \"Bundle\",\n  \"id\": \"d822a02d-c871-44f8-9bc4-cddc5f4c0238\",\n  \"type\": \"searchset\",\n  \"total\": 7,\n  \"entry\": [\n    {\n      \"resource\": {\n        \"resourceType\": \"EpisodeOfCare\",\n        \"status\": \"active\",\n        \"type\": [\n          {\n            \"coding\": [\n              {\n                \"code\": \"2.2.3\",\n                \"display\": \"Medisinering i hjemmet\"\n              }\n            ]\n          }\n        ],\n        \"patient\": {\n          \"identifier\": {\n            \"system\": \"urn:oid:2.16.578.1.12.4.1.4.1\",\n            \"value\": \"13116900216\"\n          }\n        },\n        \"managingOrganization\": {\n          \"identifier\": {\n            \"system\": \"http://epj.no/\",\n            \"value\": \"1.1.3\"\n          },\n          \"display\": \"VKP|Hjemmeboende|Sone Øst\"\n        },\n        \"period\": {\n          \"start\": \"2020-06-18T13:20:04.3953288Z\",\n          \"end\": \"2022-06-18T13:20:04.3954047Z\"\n        }\n      },\n      \"search\": {\n        \"mode\": \"match\"\n      }\n    },\n    {\n      \"resource\": {\n        \"resourceType\": \"EpisodeOfCare\",\n        \"status\": \"active\",\n        \"type\": [\n          {\n            \"coding\": [\n              {\n                \"code\": \"2.2.3\",\n                \"display\": \"Medisinering i hjemmet\"\n              }\n            ]\n          }\n        ],\n        \"patient\": {\n          \"identifier\": {\n            \"system\": \"urn:oid:2.16.578.1.12.4.1.4.1\",\n            \"value\": \"12057900499\"\n          }\n        },\n        \"managingOrganization\": {\n          \"identifier\": {\n            \"system\": \"http://epj.no/\",\n            \"value\": \"1.1.3\"\n          },\n          \"display\": \"VKP|Hjemmeboende|Sone Øst\"\n        },\n        \"period\": {\n          \"start\": \"2020-06-18T13:20:04.3953288Z\",\n          \"end\": \"2022-06-18T13:20:04.3954047Z\"\n        }\n      },\n      \"search\": {\n        \"mode\": \"match\"\n      }\n    },\n    {\n      \"resource\": {\n        \"resourceType\": \"EpisodeOfCare\",\n        \"status\": \"active\",\n        \"type\": [\n          {\n            \"coding\": [\n              {\n                \"code\": \"2.2.3\",\n                \"display\": \"Medisinering i hjemmet\"\n              }\n            ]\n          }\n        ],\n        \"patient\": {\n          \"identifier\": {\n            \"system\": \"urn:oid:2.16.578.1.12.4.1.4.1\",\n            \"value\": \"08077000292\"\n          }\n        },\n        \"managingOrganization\": {\n          \"identifier\": {\n            \"system\": \"http://epj.no/\",\n            \"value\": \"1.1.3\"\n          },\n          \"display\": \"VKP|Hjemmeboende|Sone Øst\"\n        },\n        \"period\": {\n          \"start\": \"2020-06-18T13:20:04.3953288Z\",\n          \"end\": \"2022-06-18T13:20:04.3954047Z\"\n        }\n      },\n      \"search\": {\n        \"mode\": \"match\"\n      }\n    },\n    {\n      \"resource\": {\n        \"resourceType\": \"EpisodeOfCare\",\n        \"status\": \"active\",\n        \"type\": [\n          {\n            \"coding\": [\n              {\n                \"code\": \"2.2.3\",\n                \"display\": \"Medisinering i hjemmet\"\n              }\n            ]\n          }\n        ],\n        \"patient\": {\n          \"identifier\": {\n            \"system\": \"urn:oid:2.16.578.1.12.4.1.4.1\",\n            \"value\": \"21016400952\"\n          }\n        },\n        \"managingOrganization\": {\n          \"identifier\": {\n            \"system\": \"http://epj.no/\",\n            \"value\": \"1.1.3\"\n          },\n          \"display\": \"VKP|Hjemmeboende|Sone Øst\"\n        },\n        \"period\": {\n          \"start\": \"2020-06-18T13:20:04.3953288Z\",\n          \"end\": \"2022-06-18T13:20:04.3954047Z\"\n        }\n      },\n      \"search\": {\n        \"mode\": \"match\"\n      }\n    },\n    {\n      \"resource\": {\n        \"resourceType\": \"EpisodeOfCare\",\n        \"status\": \"active\",\n        \"type\": [\n          {\n            \"coding\": [\n              {\n                \"code\": \"2.2.3\",\n                \"display\": \"Medisinering i hjemmet\"\n              }\n            ]\n          }\n        ],\n        \"patient\": {\n          \"identifier\": {\n            \"system\": \"urn:oid:2.16.578.1.12.4.1.4.1\",\n            \"value\": \"21030550231\"\n          }\n        },\n        \"managingOrganization\": {\n          \"identifier\": {\n            \"system\": \"http://epj.no/\",\n            \"value\": \"1.1.3\"\n          },\n          \"display\": \"VKP|Hjemmeboende|Sone Øst\"\n        },\n        \"period\": {\n          \"start\": \"2020-06-18T13:20:04.3953288Z\",\n          \"end\": \"2022-06-18T13:20:04.3954047Z\"\n        }\n      },\n      \"search\": {\n        \"mode\": \"match\"\n      }\n    },\n    {\n      \"resource\": {\n        \"resourceType\": \"EpisodeOfCare\",\n        \"status\": \"active\",\n        \"type\": [\n          {\n            \"coding\": [\n              {\n                \"code\": \"2.2.3\",\n                \"display\": \"Medisinering i hjemmet\"\n              }\n            ]\n          }\n        ],\n        \"patient\": {\n          \"identifier\": {\n            \"system\": \"urn:oid:2.16.578.1.12.4.1.4.1\",\n            \"value\": \"12050050295\"\n          }\n        },\n        \"managingOrganization\": {\n          \"identifier\": {\n            \"system\": \"http://epj.no/\",\n            \"value\": \"1.1.3\"\n          },\n          \"display\": \"VKP|Hjemmeboende|Sone Øst\"\n        },\n        \"period\": {\n          \"start\": \"2020-06-18T13:20:04.3953288Z\",\n          \"end\": \"2022-06-18T13:20:04.3954047Z\"\n        }\n      },\n      \"search\": {\n        \"mode\": \"match\"\n      }\n    },\n    {\n      \"resource\": {\n        \"resourceType\": \"EpisodeOfCare\",\n        \"status\": \"active\",\n        \"type\": [\n          {\n            \"coding\": [\n              {\n                \"code\": \"2.2.3\",\n                \"display\": \"Medisinering i hjemmet\"\n              }\n            ]\n          }\n        ],\n        \"patient\": {\n          \"identifier\": {\n            \"system\": \"urn:oid:2.16.578.1.12.4.1.4.1\",\n            \"value\": \"14019800513\"\n          }\n        },\n        \"managingOrganization\": {\n          \"identifier\": {\n            \"system\": \"http://epj.no/\",\n            \"value\": \"1.1.3\"\n          },\n          \"display\": \"VKP|Hjemmeboende|Sone Øst\"\n        },\n        \"period\": {\n          \"start\": \"2020-06-18T13:20:04.3953288Z\",\n          \"end\": \"2022-06-18T13:20:04.3954047Z\"\n        }\n      },\n      \"search\": {\n        \"mode\": \"match\"\n      }\n    },\n    {\n      \"resource\": {\n        \"resourceType\": \"Patient\",\n        \"meta\": {\n          \"profile\": [\n            \"http://ehelse.no/fhir/StructureDefinition/vkp-Patient-v090\"\n          ]\n        },\n        \"identifier\": [\n          {\n            \"system\": \"http://epj.no/lopenummer\",\n            \"value\": \"107975\"\n          },\n          {\n            \"system\": \"urn:oid:2.16.578.1.12.4.1.4.1\",\n            \"value\": \"13116900216\"\n          }\n        ],\n        \"active\": true,\n        \"name\": [\n          {\n            \"family\": \"Danser\",\n            \"given\": [\n              \"Line\"\n            ]\n          }\n        ],\n        \"telecom\": [\n          {\n            \"value\": \"not available\"\n          }\n        ],\n        \"gender\": \"female\",\n        \"birthDate\": \"1969-11-13\",\n        \"address\": [\n          {\n            \"text\": \"not available\"\n          }\n        ],\n        \"maritalStatus\": {\n          \"coding\": [\n            {\n              \"system\": \"http://terminology.hl7.org/CodeSystem/v3-MaritalStatus\",\n              \"code\": \"M\"\n            }\n          ]\n        },\n        \"managingOrganization\": {\n          \"identifier\": {\n            \"system\": \"http://epj.no/\",\n            \"value\": \"1.1.1.2.1.1\"\n          }\n        }\n      },\n      \"search\": {\n        \"mode\": \"include\"\n      }\n    },\n    {\n      \"resource\": {\n        \"resourceType\": \"Patient\",\n        \"meta\": {\n          \"profile\": [\n            \"http://ehelse.no/fhir/StructureDefinition/vkp-Patient-v090\"\n          ]\n        },\n        \"identifier\": [\n          {\n            \"system\": \"http://epj.no/\",\n            \"value\": \"60505\"\n          },\n          {\n            \"system\": \"urn:oid:2.16.578.1.12.4.1.4.1\",\n            \"value\": \"12057900499\"\n          }\n        ],\n        \"active\": true,\n        \"name\": [\n          {\n            \"family\": \"Telokk\",\n            \"given\": [\n              \"Gry\"\n            ]\n          }\n        ],\n        \"telecom\": [\n          {\n            \"system\": \"phone\",\n            \"value\": \"93169055\",\n            \"use\": \"mobile\"\n          },\n          {\n            \"system\": \"phone\",\n            \"value\": \"93169056\",\n            \"use\": \"mobile\"\n          },\n          {\n            \"system\": \"phone\",\n            \"value\": \"93169057\",\n            \"use\": \"mobile\"\n          }\n        ],\n        \"gender\": \"female\",\n        \"birthDate\": \"1979-05-12\",\n        \"address\": [\n          {\n            \"use\": \"home\",\n            \"line\": [\n              \"Testveien 11\"\n            ],\n            \"city\": \"By\",\n            \"postalCode\": \"0111\"\n          }\n        ],\n        \"maritalStatus\": {\n          \"coding\": [\n            {\n              \"system\": \"http://terminology.hl7.org/CodeSystem/v3-MaritalStatus\",\n              \"code\": \"M\"\n            }\n          ]\n        },\n        \"managingOrganization\": {\n          \"identifier\": {\n            \"system\": \"http://epj.no/\",\n            \"value\": \"1.2.2\"\n          }\n        }\n      },\n      \"search\": {\n        \"mode\": \"include\"\n      }\n    },\n    {\n      \"resource\": {\n        \"resourceType\": \"Patient\",\n        \"meta\": {\n          \"profile\": [\n            \"http://ehelse.no/fhir/StructureDefinition/vkp-Patient-v090\"\n          ]\n        },\n        \"identifier\": [\n          {\n            \"system\": \"http://epj.no/lopenummer\",\n            \"value\": \"101997\"\n          },\n          {\n            \"system\": \"urn:oid:2.16.578.1.12.4.1.4.1\",\n            \"value\": \"08077000292\"\n          }\n        ],\n        \"active\": true,\n        \"name\": [\n          {\n            \"family\": \"Änglegård\",\n            \"given\": [\n              \"Mariôn\"\n            ]\n          }\n        ],\n        \"telecom\": [\n          {\n            \"system\": \"email\",\n            \"value\": \"Mariôn@test.no\",\n            \"use\": \"home\",\n            \"rank\": 1\n          }\n        ],\n        \"gender\": \"female\",\n        \"birthDate\": \"1970-07-08\",\n        \"address\": [\n          {\n            \"use\": \"home\",\n            \"line\": [\n              \"Testgate 11\"\n            ],\n            \"city\": \"By\",\n            \"postalCode\": \"0111\"\n          }\n        ],\n        \"maritalStatus\": {\n          \"coding\": [\n            {\n              \"system\": \"http://terminology.hl7.org/CodeSystem/v3-MaritalStatus\",\n              \"code\": \"U\"\n            }\n          ]\n        },\n        \"managingOrganization\": {\n          \"identifier\": {\n            \"system\": \"http://epj.no/\",\n            \"value\": \"1.2.2\"\n          }\n        }\n      },\n      \"search\": {\n        \"mode\": \"include\"\n      }\n    },\n    {\n      \"resource\": {\n        \"resourceType\": \"Patient\",\n        \"meta\": {\n          \"profile\": [\n            \"http://ehelse.no/fhir/StructureDefinition/vkp-Patient-v090\"\n          ]\n        },\n        \"identifier\": [\n          {\n            \"system\": \"http://epj.no/lopenummer\",\n            \"value\": \"90919\"\n          },\n          {\n            \"system\": \"urn:oid:2.16.578.1.12.4.1.4.1\",\n            \"value\": \"21016400952\"\n          }\n        ],\n        \"active\": true,\n        \"name\": [\n          {\n            \"family\": \"Dottno\",\n            \"given\": [\n              \"Finn\"\n            ]\n          }\n        ],\n        \"gender\": \"male\",\n        \"birthDate\": \"1964-01-21\",\n        \"address\": [\n          {\n            \"use\": \"home\",\n            \"line\": [\n              \"Testveien 1\"\n            ],\n            \"city\": \"By\",\n            \"postalCode\": \"0301\"\n          }\n        ],\n        \"maritalStatus\": {\n          \"coding\": [\n            {\n              \"system\": \"http://terminology.hl7.org/CodeSystem/v3-MaritalStatus\",\n              \"code\": \"M\"\n            }\n          ]\n        },\n        \"managingOrganization\": {\n          \"identifier\": {\n            \"system\": \"http://epj.no/geographicallevel\",\n            \"value\": \"1.4.1\"\n          }\n        }\n      },\n      \"search\": {\n        \"mode\": \"include\"\n      }\n    },\n    {\n      \"resource\": {\n        \"resourceType\": \"Patient\",\n        \"meta\": {\n          \"profile\": [\n            \"http://ehelse.no/fhir/StructureDefinition/vkp-Patient-v090\"\n          ]\n        },\n        \"identifier\": [\n          {\n            \"system\": \"http://epj.no/lopenummer\",\n            \"value\": \"101384\"\n          },\n          {\n            \"system\": \"urn:oid:2.16.578.1.12.4.1.4.1\",\n            \"value\": \"21030550231\"\n          }\n        ],\n        \"active\": true,\n        \"name\": [\n          {\n            \"extension\": [\n              {\n                \"url\": \"http://hl7.no/fhir/StructureDefinition/no-basis-middlename\",\n                \"valueString\": \"Bente\"\n              }\n            ],\n            \"family\": \"Søreng\",\n            \"given\": [\n              \"Jannice\"\n            ]\n          }\n        ],\n        \"telecom\": [\n          {\n            \"system\": \"email\",\n            \"value\": \"Jannice@test.no\",\n            \"use\": \"home\",\n            \"rank\": 1\n          }\n        ],\n        \"gender\": \"female\",\n        \"birthDate\": \"2005-03-21\",\n        \"address\": [\n          {\n            \"use\": \"home\",\n            \"line\": [\n              \"Testveien 11\"\n            ],\n            \"city\": \"By\",\n            \"postalCode\": \"0111\"\n          }\n        ],\n        \"maritalStatus\": {\n          \"coding\": [\n            {\n              \"system\": \"http://terminology.hl7.org/CodeSystem/v3-MaritalStatus\",\n              \"code\": \"U\"\n            }\n          ]\n        },\n        \"managingOrganization\": {\n          \"identifier\": {\n            \"system\": \"http://epj.no/\",\n            \"value\": \"1.4.1\"\n          }\n        }\n      },\n      \"search\": {\n        \"mode\": \"include\"\n      }\n    },\n    {\n      \"resource\": {\n        \"resourceType\": \"Patient\",\n        \"meta\": {\n          \"profile\": [\n            \"http://ehelse.no/fhir/StructureDefinition/vkp-Patient-v090\"\n          ]\n        },\n        \"identifier\": [\n          {\n            \"system\": \"http://epj.no/lopenummer\",\n            \"value\": \"107273\"\n          },\n          {\n            \"system\": \"urn:oid:2.16.578.1.12.4.1.4.1\",\n            \"value\": \"12050050295\"\n          }\n        ],\n        \"active\": true,\n        \"name\": [\n          {\n            \"family\": \"Änglegård\",\n            \"given\": [\n              \"Annikén\"\n            ]\n          }\n        ],\n        \"telecom\": [\n          {\n            \"system\": \"phone\",\n            \"value\": \"99607092\",\n            \"use\": \"mobile\",\n            \"rank\": 1\n          },\n          {\n            \"system\": \"email\",\n            \"value\": \"Inger-Johanne.Olsen@test.no\",\n            \"use\": \"home\"\n          }\n        ],\n        \"gender\": \"female\",\n        \"birthDate\": \"2000-05-12\",\n        \"address\": [\n          {\n            \"use\": \"home\",\n            \"line\": [\n              \"Testveien 11\"\n            ],\n            \"city\": \"By\",\n            \"postalCode\": \"0111\"\n          }\n        ],\n        \"maritalStatus\": {\n          \"coding\": [\n            {\n              \"system\": \"http://terminology.hl7.org/CodeSystem/v3-MaritalStatus\",\n              \"code\": \"UNK\"\n            }\n          ]\n        },\n        \"managingOrganization\": {\n          \"identifier\": {\n            \"system\": \"http://epj.no/\",\n            \"value\": \"1.4.1\"\n          }\n        }\n      },\n      \"search\": {\n        \"mode\": \"include\"\n      }\n    },\n    {\n      \"resource\": {\n        \"resourceType\": \"Patient\",\n        \"meta\": {\n          \"profile\": [\n            \"http://ehelse.no/fhir/StructureDefinition/vkp-Patient-v090\"\n          ]\n        },\n        \"identifier\": [\n          {\n            \"system\": \"http://epj.no/lopenummer\",\n            \"value\": \"90727\"\n          },\n          {\n            \"system\": \"urn:oid:2.16.578.1.12.4.1.4.1\",\n            \"value\": \"14019800513\"\n          }\n        ],\n        \"active\": true,\n        \"name\": [\n          {\n            \"family\": \"Danser\",\n            \"given\": [\n              \"Folke\"\n            ]\n          }\n        ],\n        \"telecom\": [\n          {\n            \"system\": \"phone\",\n            \"value\": \"39784205\",\n            \"use\": \"home\",\n            \"rank\": 1\n          },\n          {\n            \"system\": \"email\",\n            \"value\": \"Folke@test.no\",\n            \"use\": \"home\"\n          }\n        ],\n        \"gender\": \"male\",\n        \"birthDate\": \"1998-01-14\",\n        \"address\": [\n          {\n            \"use\": \"home\",\n            \"line\": [\n              \"Postboks 14 SENTRUM\"\n            ],\n            \"city\": \"By\",\n            \"postalCode\": \"0101\"\n          }\n        ],\n        \"maritalStatus\": {\n          \"coding\": [\n            {\n              \"system\": \"http://terminology.hl7.org/CodeSystem/v3-MaritalStatus\",\n              \"code\": \"M\"\n            }\n          ]\n        },\n        \"managingOrganization\": {\n          \"identifier\": {\n            \"system\": \"http://epj.no/\",\n            \"value\": \"1.1.1.2.1.1\"\n          }\n        }\n      },\n      \"search\": {\n        \"mode\": \"include\"\n      }\n    }\n  ]\n}"
+                  },
+                  "Single": {
+                    "value": "{\n  \"resourceType\": \"Bundle\",\n  \"id\": \"d822a02d-c871-44f8-9bc4-cddc5f4c0238\",\n  \"type\": \"searchset\",\n  \"total\": 1,\n  \"entry\": [\n    {\n      \"resource\": {\n        \"resourceType\": \"EpisodeOfCare\",\n        \"status\": \"active\",\n        \"type\": [\n          {\n            \"coding\": [\n              {\n                \"code\": \"2.2.3\",\n                \"display\": \"Medisinering i hjemmet\"\n              }\n            ]\n          }\n        ],\n        \"patient\": {\n          \"identifier\": {\n            \"system\": \"urn:oid:2.16.578.1.12.4.1.4.1\",\n            \"value\": \"13116900216\"\n          }\n        },\n        \"managingOrganization\": {\n          \"identifier\": {\n            \"system\": \"http://epj.no/\",\n            \"value\": \"1.1.3\"\n          },\n          \"display\": \"VKP|Hjemmeboende|Sone Øst\"\n        },\n        \"period\": {\n          \"start\": \"2020-06-18T13:20:04.3953288Z\",\n          \"end\": \"2022-06-18T13:20:04.3954047Z\"\n        }\n      },\n      \"search\": {\n        \"mode\": \"match\"\n      }\n    },\n    {\n      \"resource\": {\n        \"resourceType\": \"Patient\",\n        \"meta\": {\n          \"profile\": [\n            \"http://ehelse.no/fhir/StructureDefinition/vkp-Patient-v090\"\n          ]\n        },\n        \"identifier\": [\n          {\n            \"system\": \"http://epj.no/lopenummer\",\n            \"value\": \"107975\"\n          },\n          {\n            \"system\": \"urn:oid:2.16.578.1.12.4.1.4.1\",\n            \"value\": \"13116900216\"\n          }\n        ],\n        \"active\": true,\n        \"name\": [\n          {\n            \"family\": \"Danser\",\n            \"given\": [\n              \"Line\"\n            ]\n          }\n        ],\n        \"telecom\": [\n          {\n            \"value\": \"not available\"\n          }\n        ],\n        \"gender\": \"female\",\n        \"birthDate\": \"1969-11-13\",\n        \"address\": [\n          {\n            \"text\": \"not available\"\n          }\n        ],\n        \"maritalStatus\": {\n          \"coding\": [\n            {\n              \"system\": \"http://terminology.hl7.org/CodeSystem/v3-MaritalStatus\",\n              \"code\": \"M\"\n            }\n          ]\n        },\n        \"managingOrganization\": {\n          \"identifier\": {\n            \"system\": \"http://epj.no/\",\n            \"value\": \"1.1.1.2.1.1\"\n          }\n        }\n      },\n      \"search\": {\n        \"mode\": \"include\"\n      }\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                },
+                "examples": {
+                  "Invalid orgNo": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"value\",\n      \"diagnostics\": \"Invalid OrgNr value in url-parameter. Parameter name: orgnr. CorrelationID: 60eed51d-04a9-4a61-b6da-b13316ee7469\"\n    }\n  ]\n}"
+                  },
+                  "Invalid request body": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"invalid\",\n      \"diagnostics\": \"Empty or invalid request body or content-type. CorrelationID: ee079711-88b2-422b-b4f2-ef8d91dd89da\"\n    }\n  ]\n}"
+                  },
+                  "Invalid ssn": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"value\",\n      \"diagnostics\": \"Parameter is not a valid Norwegian SSN. Parameter name: patient.identifier. CorrelationId: 304648d4-5283-41de-883d-412b90086d8f\"\n    }\n  ]\n}"
+                  },
+                  "Missing servicecodes": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"required\",\n      \"diagnostics\": \"Missing required header value. Parameter name: ServiceCodes. CorrelationId: 123-asd-1234\"\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/epj/r4/{orgNo}/medicationdispense": {
+      "post": {
+        "tags": [
+          "R4"
+        ],
+        "summary": "Journaling of successful medication dispense.",
+        "description": "<h3>Scope</h3>\nnhn:vkp/api/user/medicationdispense.write\n<h3>Description</h3>\n<p>\n    Journaling of successful medication dispense.\n</p>\n\n<h3>Supported EPJ's</h3>\n<ul>\n    <li>CosDoc</li>\n    <li>Gerica</li>\n    <li>Visma Profil</li>\n    <li>Epic</li>\n</ul>\n<h3>Fhir-resources</h3>\n<ul>\n    <li>MedicationStatement</li>\n\n</ul>",
+        "operationId": "Epj.R4.MedicationDispense",
+        "parameters": [
+          {
+            "name": "orgNo",
+            "in": "path",
+            "description": "Organization number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                },
+                "examples": {
+                  "Missing scope": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"forbidden\",\n      \"diagnostics\": \"Caller is not authorized to journal message in org.nr 123456789 EHR-system. CorrelationId: 123-asd-1234\"\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                },
+                "examples": {
+                  "Internal server error": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"exception\",\n      \"diagnostics\": \"Unknown exception occurred. Exception message:. CorrelationId: 123-asd-1234\"\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                },
+                "examples": {
+                  "Invalid orgNo": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"value\",\n      \"diagnostics\": \"Invalid OrgNr value in url-parameter. Parameter name: orgnr. CorrelationID: 60eed51d-04a9-4a61-b6da-b13316ee7469\"\n    }\n  ]\n}"
+                  },
+                  "Invalid profile": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"incomplete\",\n      \"details\": {\n        \"coding\": [\n          {\n            \"system\": \"http://hl7.org/fhir/dotnet-api-operation-outcome\",\n            \"code\": \"4000\"\n          }\n        ],\n        \"text\": \"Unable to resolve reference to profile 'http://ehelse.no/fhir/StructureDefinition/vkp-MedicationDispense-v0'\"\n      },\n      \"location\": [\n        \"MedicationDispense\"\n      ]\n    }\n  ]\n}"
+                  },
+                  "Invalid ssn": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"value\",\n      \"diagnostics\": \"Parameter is not a valid Norwegian SSN. Parameter name: patient.identifier. CorrelationId: 304648d4-5283-41de-883d-412b90086d8f\"\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/epj/r4/{orgNo}/medicationstatement/_search": {
+      "post": {
+        "tags": [
+          "R4"
+        ],
+        "summary": "Retrieves a list of medications a specific patient.",
+        "description": "<h3>Scope</h3>\nnhn:vkp/api/user/medicationstatement.read\n<h3>Description</h3>\n<p>\n    Retrieves a list of medications a specific patient is using.\n</p>\n\n<h3>Supported EPJ's</h3>\n<ul>\n    <li>Epic</li>\n</ul>\n<h3>Fhir-resources</h3>\n<ul>\n    <li>Bundle</li>\n    <li>MedicationStatement</li>\n\n</ul>",
+        "operationId": "Epj.R4.MedicationStatementSearch",
+        "parameters": [
+          {
+            "name": "orgNo",
+            "in": "path",
+            "description": "Organization number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "serviceCodes",
+            "in": "header",
+            "description": "Specifies the service requirement for the request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "patient.identifier": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                },
+                "examples": {
+                  "Service requirement": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"forbidden\",\n      \"details\": {\n        \"coding\": [\n          {\n            \"system\": \"http://ehelse.no/fhir/CodeSystem/vkp-operation-outcome-details\",\n            \"code\": \"1.3\",\n            \"display\": \"ikke oppfylt tjenstlig behov\"\n          }\n        ]\n      },\n      \"diagnostics\": \"Patient does not have required service. CorrelationId: aaaaaaab-bbbb-bbbb-9b76-42183\"\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                },
+                "examples": {
+                  "Internal server error": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"exception\",\n      \"diagnostics\": \"Unknown exception occurred. Exception message:. CorrelationId: 123-asd-1234\"\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "bundle",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/bundle.html"
+                  }
+                },
+                "examples": {
+                  "Valid": {
+                    "value": "{\n  \"resourceType\": \"Bundle\",\n  \"id\": \"ca238ae5-954e-49e4-9720-f962f7ffd907\",\n  \"type\": \"searchset\",\n  \"total\": 4,\n  \"entry\": [\n    {\n      \"fullUrl\": \"e9wjR4WIXzWbXWI9vTUloMMGrf9n3SruGT.HlXt5EsLk3\",\n      \"resource\": {\n        \"resourceType\": \"MedicationStatement\",\n        \"id\": \"e9wjR4WIXzWbXWI9vTUloMMGrf9n3SruGT.HlXt5EsLk3\",\n        \"extension\": [\n          {\n            \"url\": \"http://nictiz.nl/fhir/StructureDefinition/zib-MedicationUse-AsAgreedIndicator\",\n            \"valueBoolean\": true\n          },\n          {\n            \"url\": \"http://nictiz.nl/fhir/StructureDefinition/zib-MedicationUse-Prescriber\",\n            \"valueReference\": {\n              \"reference\": \"https://mobil-test.helseplattformen.no/interconnect-tst-mobile/api/FHIR/STU3/Practitioner/exVl6vY.0WD3tqz22TPabxQ3\",\n              \"display\": \"Practitioner\"\n            }\n          }\n        ],\n        \"identifier\": [\n          {\n            \"use\": \"usual\",\n            \"system\": \"urn:oid:1.2.840.114350.1.13.550.3.7.2.798268\",\n            \"value\": \"1092365\"\n          }\n        ],\n        \"basedOn\": [\n          {\n            \"reference\": \"https://mobil-test.helseplattformen.no/interconnect-tst-mobile/api/FHIR/STU3/MedicationRequest/exRjRRweTyNDn0cv-eKoYpGsjEqEx3a5V3QfYpJvPyfI3\",\n            \"identifier\": {\n              \"use\": \"usual\",\n              \"system\": \"urn:oid:1.2.840.114350.1.13.550.3.7.2.798268\",\n              \"value\": \"1092365\"\n            },\n            \"display\": \"paracetamol (Paracet, Panodil, Pinex) tablett 1 g\"\n          }\n        ],\n        \"status\": \"unknown\",\n        \"category\": {\n          \"coding\": [\n            {\n              \"system\": \"http://hl7.org/fhir/medication-statement-category\",\n              \"code\": \"inpatient\",\n              \"display\": \"Inpatient\"\n            }\n          ],\n          \"text\": \"Inpatient\"\n        },\n        \"medicationReference\": {\n          \"reference\": \"https://mobil-test.helseplattformen.no/interconnect-tst-mobile/api/FHIR/STU3/Medication/e0Vu43r5MHsgGRYU7gmBu3VTf8jTxCMn74F13ykSj1Nx5dzI4IF--WU-B3I3AdkDh3\",\n          \"display\": \"paracetamol (Paracet, Panodil, Pinex) tablett\"\n        },\n        \"subject\": {\n          \"reference\": \"https://mobil-test.helseplattformen.no/interconnect-tst-mobile/api/FHIR/STU3/Patient/eXWkV7zneyPbReoq3zmnoUQ3\",\n          \"display\": \"Bca, Trygghetspatruljen\"\n        },\n        \"effectivePeriod\": {\n          \"start\": \"2023-12-15T09:30:00Z\"\n        },\n        \"dateAsserted\": \"2023-12-15T09:25:07Z\",\n        \"informationSource\": {\n          \"reference\": \"https://mobil-test.helseplattformen.no/interconnect-tst-mobile/api/FHIR/STU3/Practitioner/exVl6vY.0WD3tqz22TPabxQ3\",\n          \"display\": \"Practitioner\"\n        },\n        \"dosage\": [\n          {\n            \"extension\": [\n              {\n                \"url\": \"https://open.epic.com/fhir/extensions/admin-amount\",\n                \"valueQuantity\": {\n                  \"value\": 2,\n                  \"unit\": \"tablett\",\n                  \"system\": \"http://unitsofmeasure.org\",\n                  \"code\": \"{tbl}\"\n                }\n              },\n              {\n                \"url\": \"https://open.epic.com/fhir/extensions/ordered-dose\",\n                \"valueQuantity\": {\n                  \"value\": 1,\n                  \"unit\": \"g\",\n                  \"system\": \"http://unitsofmeasure.org\",\n                  \"code\": \"g\"\n                }\n              }\n            ],\n            \"additionalInstruction\": [\n              {\n                \"text\": \"Om nødvendig kan kapselen åpnes/tabletten knuses eller deles.\"\n              }\n            ],\n            \"timing\": {\n              \"repeat\": {\n                \"boundsPeriod\": {\n                  \"start\": \"2023-12-15T09:30:00Z\"\n                },\n                \"count\": 1\n              },\n              \"code\": {\n                \"text\": \"engangsordinering\"\n              }\n            },\n            \"asNeededBoolean\": false,\n            \"route\": {\n              \"coding\": [\n                {\n                  \"system\": \"urn:oid:1.2.840.114350.1.13.550.3.7.4.798268.7025\",\n                  \"code\": \"54\",\n                  \"display\": \"oralt\"\n                }\n              ],\n              \"text\": \"oralt\"\n            },\n            \"doseAndRate\": [\n              {\n                \"doseQuantity\": {\n                  \"value\": 1,\n                  \"unit\": \"g\",\n                  \"system\": \"http://unitsofmeasure.org\",\n                  \"code\": \"g\"\n                }\n              }\n            ]\n          }\n        ]\n      },\n      \"search\": {\n        \"mode\": \"match\"\n      }\n    },\n    {\n      \"fullUrl\": \"eBevRk7LVrA8WbN61mV1kOtNM6tFAPD7rp-aXSk0rNtE3\",\n      \"resource\": {\n        \"resourceType\": \"MedicationStatement\",\n        \"id\": \"eBevRk7LVrA8WbN61mV1kOtNM6tFAPD7rp-aXSk0rNtE3\",\n        \"extension\": [\n          {\n            \"url\": \"http://nictiz.nl/fhir/StructureDefinition/zib-MedicationUse-AsAgreedIndicator\",\n            \"valueBoolean\": true\n          },\n          {\n            \"url\": \"http://nictiz.nl/fhir/StructureDefinition/zib-MedicationUse-Prescriber\",\n            \"valueReference\": {\n              \"reference\": \"https://mobil-test.helseplattformen.no/interconnect-tst-mobile/api/FHIR/STU3/Practitioner/egD85G3vGfHImivrJBwiCOw3\",\n              \"display\": \"Practitioner\"\n            }\n          }\n        ],\n        \"identifier\": [\n          {\n            \"use\": \"usual\",\n            \"system\": \"urn:oid:1.2.840.114350.1.13.550.3.7.2.798268\",\n            \"value\": \"1092369\"\n          }\n        ],\n        \"basedOn\": [\n          {\n            \"reference\": \"https://mobil-test.helseplattformen.no/interconnect-tst-mobile/api/FHIR/STU3/MedicationRequest/ePh.bOMFcNx1u3sbZF0.QSJIgn8nlV5cBK-jkxjr-Mh43\",\n            \"identifier\": {\n              \"use\": \"usual\",\n              \"system\": \"urn:oid:1.2.840.114350.1.13.550.3.7.2.798268\",\n              \"value\": \"1092369\"\n            },\n            \"display\": \"ampicillin 2 g inf\"\n          }\n        ],\n        \"status\": \"unknown\",\n        \"category\": {\n          \"coding\": [\n            {\n              \"system\": \"http://hl7.org/fhir/medication-statement-category\",\n              \"code\": \"inpatient\",\n              \"display\": \"Inpatient\"\n            }\n          ],\n          \"text\": \"Inpatient\"\n        },\n        \"medicationReference\": {\n          \"reference\": \"https://mobil-test.helseplattformen.no/interconnect-tst-mobile/api/FHIR/STU3/Medication/epWTnBCu.707oToqXd7itcZT9.4vOP5N.1BFhPb8eLz2cNmHUndjIP8ILZS.aZ0hhqx8SVtRe5vgFRFB7oVxI.w3\",\n          \"display\": \"ampicillin 2 g i 100 ml NaCl 9 mg/ml infusjon\"\n        },\n        \"subject\": {\n          \"reference\": \"https://mobil-test.helseplattformen.no/interconnect-tst-mobile/api/FHIR/STU3/Patient/eXWkV7zneyPbReoq3zmnoUQ3\",\n          \"display\": \"Bca, Trygghetspatruljen\"\n        },\n        \"effectivePeriod\": {\n          \"start\": \"2023-12-15T13:00:00Z\"\n        },\n        \"dateAsserted\": \"2023-12-15T09:39:28Z\",\n        \"informationSource\": {\n          \"reference\": \"https://mobil-test.helseplattformen.no/interconnect-tst-mobile/api/FHIR/STU3/Practitioner/egD85G3vGfHImivrJBwiCOw3\",\n          \"display\": \"Practitioner\"\n        },\n        \"dosage\": [\n          {\n            \"extension\": [\n              {\n                \"url\": \"https://open.epic.com/fhir/extensions/admin-amount\",\n                \"valueQuantity\": {\n                  \"value\": 2,\n                  \"unit\": \"g\",\n                  \"system\": \"http://unitsofmeasure.org\",\n                  \"code\": \"g\"\n                }\n              },\n              {\n                \"url\": \"https://open.epic.com/fhir/extensions/ordered-dose\",\n                \"valueQuantity\": {\n                  \"value\": 2,\n                  \"unit\": \"g\",\n                  \"system\": \"http://unitsofmeasure.org\",\n                  \"code\": \"g\"\n                }\n              }\n            ],\n            \"timing\": {\n              \"repeat\": {\n                \"boundsPeriod\": {\n                  \"start\": \"2023-12-15T13:00:00Z\"\n                },\n                \"duration\": 20,\n                \"durationUnit\": \"min\",\n                \"frequency\": 3,\n                \"period\": 1,\n                \"periodUnit\": \"d\"\n              },\n              \"code\": {\n                \"text\": \"0600,1400, 2200\"\n              }\n            },\n            \"asNeededBoolean\": false,\n            \"route\": {\n              \"coding\": [\n                {\n                  \"system\": \"urn:oid:1.2.840.114350.1.13.550.3.7.4.798268.7025\",\n                  \"code\": \"44\",\n                  \"display\": \"intravenøst\"\n                }\n              ],\n              \"text\": \"intravenøst\"\n            },\n            \"doseAndRate\": [\n              {\n                \"doseQuantity\": {\n                  \"value\": 2,\n                  \"unit\": \"g\",\n                  \"system\": \"http://unitsofmeasure.org\",\n                  \"code\": \"g\"\n                }\n              }\n            ]\n          }\n        ]\n      },\n      \"search\": {\n        \"mode\": \"match\"\n      }\n    },\n    {\n      \"fullUrl\": \"eX68kk4y4ZB97QwCrez5fhLa0jt7ghDVquGT1ytVR0Tg3\",\n      \"resource\": {\n        \"resourceType\": \"MedicationStatement\",\n        \"id\": \"eX68kk4y4ZB97QwCrez5fhLa0jt7ghDVquGT1ytVR0Tg3\",\n        \"extension\": [\n          {\n            \"url\": \"http://nictiz.nl/fhir/StructureDefinition/zib-MedicationUse-AsAgreedIndicator\",\n            \"valueBoolean\": true\n          },\n          {\n            \"url\": \"http://nictiz.nl/fhir/StructureDefinition/zib-MedicationUse-Prescriber\",\n            \"valueReference\": {\n              \"reference\": \"https://mobil-test.helseplattformen.no/interconnect-tst-mobile/api/FHIR/STU3/Practitioner/egD85G3vGfHImivrJBwiCOw3\",\n              \"display\": \"Practitioner\"\n            }\n          }\n        ],\n        \"identifier\": [\n          {\n            \"use\": \"usual\",\n            \"system\": \"urn:oid:1.2.840.114350.1.13.550.3.7.2.798268\",\n            \"value\": \"1092370\"\n          }\n        ],\n        \"basedOn\": [\n          {\n            \"reference\": \"https://mobil-test.helseplattformen.no/interconnect-tst-mobile/api/FHIR/STU3/MedicationRequest/eT.iDbSfYImDUln6BCXvA4qmoLO78qPzePQ9L0mgRv.Q3\",\n            \"identifier\": {\n              \"use\": \"usual\",\n              \"system\": \"urn:oid:1.2.840.114350.1.13.550.3.7.2.798268\",\n              \"value\": \"1092370\"\n            },\n            \"display\": \"pentoksyfyllin (Trental) depottablett 400 mg\"\n          }\n        ],\n        \"status\": \"unknown\",\n        \"category\": {\n          \"coding\": [\n            {\n              \"system\": \"http://hl7.org/fhir/medication-statement-category\",\n              \"code\": \"inpatient\",\n              \"display\": \"Inpatient\"\n            }\n          ],\n          \"text\": \"Inpatient\"\n        },\n        \"medicationReference\": {\n          \"reference\": \"https://mobil-test.helseplattformen.no/interconnect-tst-mobile/api/FHIR/STU3/Medication/eVOsGB0um0K2i3ZHMdsI05XwpEg-x33U3mbp5t9P.28zZ.Ja3vQ.2asiFAfFpEsen3\",\n          \"display\": \"pentoksyfyllin (Trental) depottablett\"\n        },\n        \"subject\": {\n          \"reference\": \"https://mobil-test.helseplattformen.no/interconnect-tst-mobile/api/FHIR/STU3/Patient/eXWkV7zneyPbReoq3zmnoUQ3\",\n          \"display\": \"Bca, Trygghetspatruljen\"\n        },\n        \"effectivePeriod\": {\n          \"start\": \"2023-12-15T12:00:00Z\"\n        },\n        \"dateAsserted\": \"2023-12-15T09:41:05Z\",\n        \"informationSource\": {\n          \"reference\": \"https://mobil-test.helseplattformen.no/interconnect-tst-mobile/api/FHIR/STU3/Practitioner/egD85G3vGfHImivrJBwiCOw3\",\n          \"display\": \"Practitioner\"\n        },\n        \"dosage\": [\n          {\n            \"extension\": [\n              {\n                \"url\": \"https://open.epic.com/fhir/extensions/admin-amount\",\n                \"valueQuantity\": {\n                  \"value\": 1,\n                  \"unit\": \"tablett\",\n                  \"system\": \"http://unitsofmeasure.org\",\n                  \"code\": \"{tbl}\"\n                }\n              },\n              {\n                \"url\": \"https://open.epic.com/fhir/extensions/ordered-dose\",\n                \"valueQuantity\": {\n                  \"value\": 400,\n                  \"unit\": \"mg\",\n                  \"system\": \"http://unitsofmeasure.org\",\n                  \"code\": \"mg\"\n                }\n              }\n            ],\n            \"additionalInstruction\": [\n              {\n                \"text\": \"Svelges hele med 1/2 glass vann til, eller like etter måltid\\n\\rSvelges hel.\"\n              }\n            ],\n            \"timing\": {\n              \"repeat\": {\n                \"boundsPeriod\": {\n                  \"start\": \"2023-12-15T12:00:00Z\"\n                },\n                \"frequency\": 3,\n                \"period\": 1,\n                \"periodUnit\": \"d\"\n              },\n              \"code\": {\n                \"text\": \"0700, 1500, 2300\"\n              }\n            },\n            \"asNeededBoolean\": false,\n            \"route\": {\n              \"coding\": [\n                {\n                  \"system\": \"urn:oid:1.2.840.114350.1.13.550.3.7.4.798268.7025\",\n                  \"code\": \"54\",\n                  \"display\": \"oralt\"\n                }\n              ],\n              \"text\": \"oralt\"\n            },\n            \"doseAndRate\": [\n              {\n                \"doseQuantity\": {\n                  \"value\": 400,\n                  \"unit\": \"mg\",\n                  \"system\": \"http://unitsofmeasure.org\",\n                  \"code\": \"mg\"\n                }\n              }\n            ]\n          }\n        ]\n      },\n      \"search\": {\n        \"mode\": \"match\"\n      }\n    },\n    {\n      \"fullUrl\": \"efyx6XhI73zJzE1Jg8bGh.DEbt07vRamNeWM72SD-IcI3\",\n      \"resource\": {\n        \"resourceType\": \"MedicationStatement\",\n        \"id\": \"efyx6XhI73zJzE1Jg8bGh.DEbt07vRamNeWM72SD-IcI3\",\n        \"extension\": [\n          {\n            \"url\": \"http://nictiz.nl/fhir/StructureDefinition/zib-MedicationUse-AsAgreedIndicator\",\n            \"valueBoolean\": true\n          },\n          {\n            \"url\": \"http://nictiz.nl/fhir/StructureDefinition/zib-MedicationUse-Prescriber\",\n            \"valueReference\": {\n              \"reference\": \"https://mobil-test.helseplattformen.no/interconnect-tst-mobile/api/FHIR/STU3/Practitioner/egD85G3vGfHImivrJBwiCOw3\",\n              \"display\": \"Practitioner\"\n            }\n          }\n        ],\n        \"identifier\": [\n          {\n            \"use\": \"usual\",\n            \"system\": \"urn:oid:1.2.840.114350.1.13.550.3.7.2.798268\",\n            \"value\": \"1092367\"\n          }\n        ],\n        \"basedOn\": [\n          {\n            \"reference\": \"https://mobil-test.helseplattformen.no/interconnect-tst-mobile/api/FHIR/STU3/MedicationRequest/eu3AzS2s7UgUgSYTYTj5PIN0jX9oGayr6Odp.B9jIFeI3\",\n            \"identifier\": {\n              \"use\": \"usual\",\n              \"system\": \"urn:oid:1.2.840.114350.1.13.550.3.7.2.798268\",\n              \"value\": \"1092367\"\n            },\n            \"display\": \"heparin 720 IE i peritonealdialysevæske\"\n          }\n        ],\n        \"status\": \"unknown\",\n        \"category\": {\n          \"coding\": [\n            {\n              \"system\": \"http://hl7.org/fhir/medication-statement-category\",\n              \"code\": \"inpatient\",\n              \"display\": \"Inpatient\"\n            }\n          ],\n          \"text\": \"Inpatient\"\n        },\n        \"medicationReference\": {\n          \"reference\": \"https://mobil-test.helseplattformen.no/interconnect-tst-mobile/api/FHIR/STU3/Medication/eU6KWPffujA5iaRwujdrVx5X4a-fDsuEF7qHyf-gGIJGegQu8MoSMikSsKethifm-7Q3u-fckYRJX.x4EUp08Qg3\",\n          \"display\": \"dialysevæske med heparin\"\n        },\n        \"subject\": {\n          \"reference\": \"https://mobil-test.helseplattformen.no/interconnect-tst-mobile/api/FHIR/STU3/Patient/eXWkV7zneyPbReoq3zmnoUQ3\",\n          \"display\": \"Bca, Trygghetspatruljen\"\n        },\n        \"effectivePeriod\": {\n          \"start\": \"2023-12-15T09:40:00Z\"\n        },\n        \"dateAsserted\": \"2023-12-15T09:37:11Z\",\n        \"informationSource\": {\n          \"reference\": \"https://mobil-test.helseplattformen.no/interconnect-tst-mobile/api/FHIR/STU3/Practitioner/egD85G3vGfHImivrJBwiCOw3\",\n          \"display\": \"Practitioner\"\n        },\n        \"dosage\": [\n          {\n            \"timing\": {\n              \"repeat\": {\n                \"boundsPeriod\": {\n                  \"start\": \"2023-12-15T09:40:00Z\"\n                },\n                \"count\": 1\n              },\n              \"code\": {\n                \"text\": \"engangsordinering\"\n              }\n            },\n            \"asNeededBoolean\": false,\n            \"route\": {\n              \"coding\": [\n                {\n                  \"system\": \"urn:oid:1.2.840.114350.1.13.550.3.7.4.798268.7025\",\n                  \"code\": \"38\",\n                  \"display\": \"intraperitonealt\"\n                }\n              ],\n              \"text\": \"intraperitonealt\"\n            }\n          }\n        ]\n      },\n      \"search\": {\n        \"mode\": \"match\"\n      }\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                },
+                "examples": {
+                  "Invalid orgNo": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"value\",\n      \"diagnostics\": \"Invalid OrgNr value in url-parameter. Parameter name: orgnr. CorrelationID: 60eed51d-04a9-4a61-b6da-b13316ee7469\"\n    }\n  ]\n}"
+                  },
+                  "Invalid ssn": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"value\",\n      \"diagnostics\": \"Parameter is not a valid Norwegian SSN. Parameter name: patient.identifier. CorrelationId: 304648d4-5283-41de-883d-412b90086d8f\"\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/epj/r4/{orgNo}/patient/_search": {
+      "post": {
+        "tags": [
+          "R4"
+        ],
+        "summary": "Retrieves patients that qualify for the service requirement.",
+        "description": "<h3>Scope</h3>\nnhn:vkp/api/user/patient.read\n<h3>Description</h3>\n<p>Retrieves patients that qualify for the service requirement.</p>\n<h3>Supported EPJ's</h3>\n<ul>\n    <li>CosDoc</li>\n    <li>Gerica</li>\n    <li>Visma Profil</li>\n    <li>Epic</li>\n</ul>\n<h3>Fhir-resources</h3>\n<ul>\n    <li>Bundle</li>\n    <li>Patient</li>\n\n</ul>",
+        "operationId": "Epj.R4.PatientSearch",
+        "parameters": [
+          {
+            "name": "orgNo",
+            "in": "path",
+            "description": "Organization number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "serviceCodes",
+            "in": "header",
+            "description": "Specifies the service requirement for the request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "<p>patient.identifier is optional.</p>\n<p>\n    If patient.identifier is specified, the search will be performed using the identifier.\n</p>\n<ul>\n    <li>Format: [system-id|]</li>\n    <li>If [system-id] is omitted, it is assumed a norwegian identification number has been submitted.</li>\n    <li>Must be valid according to the mod11-criterias.</li>\n    <li>Valid system identification:\n        <ul>\n            <li>Fødselsnummer: urn:oid:2.16.578.1.12.4.1.4.1</li>\n            <li>D-nummer: urn:oid:2.16.578.1.12.4.1.4.2</li>\n            <li>Felles-hjelpenummer: urn:oid:2.16.578.1.12.4.1.4.3</li>\n            <li>http://gerica.tietoevry.no/lopenummer</li>\n            <li>http://profil.visma.no/lopenummer</li>\n            <li>http://cosdoc.dips.no/lopenummer\n        </ul>\n    </li>\n</ul>",
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "identifier": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unauthorized"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                },
+                "examples": {
+                  "Forbidden": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"forbidden\",\n      \"details\": {\n        \"coding\": [\n          {\n            \"system\": \"http://ehelse.no/fhir/CodeSystem/vkp-operation-outcome-details\",\n            \"code\": \"1.2\",\n            \"display\": \"ikke tillatt\"\n          }\n        ]\n      },\n      \"diagnostics\": \"You are not allowed to see the information about this patient. CorrelationId: aaaaaaab-bbbb-bbbb-9b76-98587\"\n    }\n  ]\n}"
+                  },
+                  "Missing scope": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"forbidden\",\n      \"details\": {\n        \"coding\": [\n          {\n            \"system\": \"http://ehelse.no/fhir/CodeSystem/vkp-operation-outcome-details\",\n            \"code\": \"1.4\",\n            \"display\": \"ikke tilgang\"\n          }\n        ]\n      },\n      \"diagnostics\": \"Caller cannot search for EHR-information from organization 888134577. CorrelationId: aaaaaaab-bbbb-bbbb-9b76-49007\"\n    }\n  ]\n}"
+                  },
+                  "Service codes": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"forbidden\",\n      \"details\": {\n        \"coding\": [\n          {\n            \"system\": \"http://ehelse.no/fhir/CodeSystem/vkp-operation-outcome-details\",\n            \"code\": \"1.5\",\n            \"display\": \"ikke autorisert\"\n          }\n        ]\n      },\n      \"diagnostics\": \"Caller is not authorized to use service codes: gps. CorrelationId: aaaaaaab-bbbb-bbbb-9b76-74441\"\n    }\n  ]\n}"
+                  },
+                  "Service requirement": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"forbidden\",\n      \"details\": {\n        \"coding\": [\n          {\n            \"system\": \"http://ehelse.no/fhir/CodeSystem/vkp-operation-outcome-details\",\n            \"code\": \"1.3\",\n            \"display\": \"ikke oppfylt tjenstlig behov\"\n          }\n        ]\n      },\n      \"diagnostics\": \"Patient does not have required service. CorrelationId: aaaaaaab-bbbb-bbbb-9b76-42183\"\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                },
+                "examples": {
+                  "Internal server error": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"exception\",\n      \"diagnostics\": \"Unknown exception occurred. Exception message:. CorrelationId: 123-asd-1234\"\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "bundle",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/bundle.html"
+                  }
+                },
+                "examples": {
+                  "Multiple": {
+                    "value": "{\n  \"resourceType\": \"Bundle\",\n  \"id\": \"069ea1b9-0d73-445c-ad19-3253677d1bb6\",\n  \"type\": \"searchset\",\n  \"total\": 4,\n  \"entry\": [\n    {\n      \"resource\": {\n        \"resourceType\": \"Patient\",\n        \"meta\": {\n          \"profile\": [\n            \"http://ehelse.no/fhir/StructureDefinition/vkp-Patient-v090\"\n          ]\n        },\n        \"identifier\": [\n          {\n            \"system\": \"http://epj.no/lopenummer\",\n            \"value\": \"5\"\n          },\n          {\n            \"system\": \"urn:oid:2.16.578.1.12.4.1.4.1\",\n            \"value\": \"14019800513\"\n          }\n        ],\n        \"active\": true,\n        \"name\": [\n          {\n            \"family\": \"Danser\",\n            \"given\": [\n              \"Folke\"\n            ]\n          }\n        ],\n        \"gender\": \"male\",\n        \"birthDate\": \"1998-01-14\",\n        \"address\": [\n          {\n            \"use\": \"home\",\n            \"line\": [\n              \"Testveien 11\"\n            ],\n            \"city\": \"By\",\n            \"postalCode\": \"3000\"\n          }\n        ],\n        \"maritalStatus\": {\n          \"coding\": [\n            {\n              \"system\": \"http://terminology.hl7.org/CodeSystem/v3-MaritalStatus\",\n              \"code\": \"U\"\n            }\n          ]\n        },\n        \"managingOrganization\": {\n          \"identifier\": {\n            \"system\": \"http://epj.no/geographicallevel\",\n            \"value\": \"1\"\n          }\n        }\n      },\n      \"search\": {\n        \"mode\": \"match\"\n      }\n    },\n    {\n      \"resource\": {\n        \"resourceType\": \"Patient\",\n        \"meta\": {\n          \"profile\": [\n            \"http://ehelse.no/fhir/StructureDefinition/vkp-Patient-v090\"\n          ]\n        },\n        \"identifier\": [\n          {\n            \"system\": \"http://epj.no/lopenummer\",\n            \"value\": \"4\"\n          },\n          {\n            \"system\": \"urn:oid:2.16.578.1.12.4.1.4.1\",\n            \"value\": \"13116900216\"\n          }\n        ],\n        \"active\": true,\n        \"name\": [\n          {\n            \"family\": \"Danser\",\n            \"given\": [\n              \"Line\"\n            ]\n          }\n        ],\n        \"gender\": \"female\",\n        \"birthDate\": \"1969-11-13\",\n        \"address\": [\n          {\n            \"use\": \"home\",\n            \"line\": [\n              \"Testveien 11\"\n            ],\n            \"city\": \"By\",\n            \"postalCode\": \"3000\"\n          }\n        ],\n        \"managingOrganization\": {\n          \"identifier\": {\n            \"system\": \"http://epj.no/geographicallevel\",\n            \"value\": \"1.2\"\n          }\n        }\n      },\n      \"search\": {\n        \"mode\": \"match\"\n      }\n    },\n    {\n      \"resource\": {\n        \"resourceType\": \"Patient\",\n        \"meta\": {\n          \"profile\": [\n            \"http://ehelse.no/fhir/StructureDefinition/vkp-Patient-v090\"\n          ]\n        },\n        \"identifier\": [\n          {\n            \"system\": \"http://epj.no/lopenummer\",\n            \"value\": \"3\"\n          },\n          {\n            \"system\": \"urn:oid:2.16.578.1.12.4.1.4.1\",\n            \"value\": \"12047700000\"\n          }\n        ],\n        \"active\": true,\n        \"name\": [\n          {\n            \"family\": \"Telokk\",\n            \"given\": [\n              \"Gry\"\n            ]\n          }\n        ],\n        \"gender\": \"female\",\n        \"birthDate\": \"1977-04-12\",\n        \"address\": [\n          {\n            \"use\": \"home\",\n            \"line\": [\n              \"Testbakken 11\"\n            ],\n            \"city\": \"By\",\n            \"postalCode\": \"5000\"\n          }\n        ],\n        \"managingOrganization\": {\n          \"identifier\": {\n            \"system\": \"http://epj.no/geographicallevel\",\n            \"value\": \"1.1\"\n          }\n        }\n      },\n      \"search\": {\n        \"mode\": \"match\"\n      }\n    },\n    {\n      \"resource\": {\n        \"resourceType\": \"Patient\",\n        \"meta\": {\n          \"profile\": [\n            \"http://ehelse.no/fhir/StructureDefinition/vkp-Patient-v090\"\n          ]\n        },\n        \"identifier\": [\n          {\n            \"system\": \"http://epj.no/lopenummer\",\n            \"value\": \"1\"\n          }\n        ],\n        \"active\": true\n      },\n      \"search\": {\n        \"mode\": \"match\"\n      }\n    }\n  ]\n}"
+                  },
+                  "Single": {
+                    "value": "{\n  \"resourceType\": \"Bundle\",\n  \"id\": \"f6218c3d-8201-40f0-bfe1-18553b5cbaef\",\n  \"type\": \"searchset\",\n  \"total\": 1,\n  \"entry\": [\n    {\n      \"resource\": {\n        \"resourceType\": \"Patient\",\n        \"meta\": {\n          \"profile\": [\n            \"http://ehelse.no/fhir/StructureDefinition/vkp-Patient-v090\"\n          ]\n        },\n        \"identifier\": [\n          {\n            \"system\": \"http://epj.no/lopenummer\",\n            \"value\": \"100000\"\n          },\n          {\n            \"system\": \"urn:oid:2.16.578.1.12.4.1.4.1\",\n            \"value\": \"13116900216\"\n          }\n        ],\n        \"active\": true,\n        \"name\": [\n          {\n            \"family\": \"Danser\",\n            \"given\": [\n              \"Line\"\n            ]\n          }\n        ],\n        \"gender\": \"female\",\n        \"birthDate\": \"1969-11-13\",\n        \"address\": [\n          {\n            \"use\": \"home\",\n            \"line\": [\n              \"Testveien 1\"\n            ],\n            \"city\": \"By\",\n            \"postalCode\": \"0301\"\n          }\n        ],\n        \"maritalStatus\": {\n          \"coding\": [\n            {\n              \"system\": \"http://terminology.hl7.org/CodeSystem/v3-MaritalStatus\",\n              \"code\": \"M\"\n            }\n          ]\n        }\n      },\n      \"search\": {\n        \"mode\": \"match\"\n      }\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                },
+                "examples": {
+                  "Invalid orgNo": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"value\",\n      \"diagnostics\": \"Invalid OrgNr value in url-parameter. Parameter name: orgnr. CorrelationID: 60eed51d-04a9-4a61-b6da-b13316ee7469\"\n    }\n  ]\n}"
+                  },
+                  "Invalid ssn": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"value\",\n      \"details\": {\n        \"coding\": [\n          {\n            \"system\": \"http://ehelse.no/fhir/CodeSystem/vkp-operation-outcome-details\",\n            \"code\": \"2.1\",\n            \"display\": \"ugyldig personidentifikator\"\n          }\n        ]\n      },\n      \"diagnostics\": \"Parameter is not a valid Norwegian SSN. Parameter name: identifier. CorrelationId: aaaaaaab-bbbb-bbbb-9b76-55829\"\n    }\n  ]\n}"
+                  },
+                  "Missing servicecodes": {
+                    "value": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"required\",\n      \"diagnostics\": \"Missing required header value. Parameter name: ServiceCodes. CorrelationId: 123-asd-1234\"\n    }\n  ]\n}"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "OperationOutcome",
+                  "externalDocs": {
+                    "url": "https://www.hl7.org/fhir/operationoutcome.html"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Bundle": {
+        "type": "Bundle",
+        "description": "A container for a collection of resources.",
+        "externalDocs": {
+          "url": "https://www.hl7.org/fhir/bundle.html"
+        }
+      },
+      "OperationOutcome": {
+        "type": "OperationOutcome",
+        "description": "A collection of error, warning, or information messages that result from a system action.",
+        "externalDocs": {
+          "url": "https://www.hl7.org/fhir/operationoutcome.html"
+        }
+      },
+      "Unauthorized": {
+        "required": [
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Json Web Token"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "R4"
+    }
+  ]
+}
